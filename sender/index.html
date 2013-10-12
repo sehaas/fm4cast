@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html ng-app data-cast-api-enabled="true">
+<head>
+
+<!--
+ *
+ * FM4cast - FM4 chromecasts receiver/sender
+ * http://sehaas.github.io/fm4cast
+ *
+ * Copyright 2013 Sebastian Haas (sehaas@deebas.com)
+ * Released under the MIT license
+ *
+ *
+//-->
+ 
+	<title>FM4 chromecast Sender</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="js/apikey.js"></script>
+	<script src="js/FM4Sender.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/FM4Sender.css"></head>
+<body>
+	<div id="receiver_list"></div>
+<script type="text/javascript">
+	$(function(){
+		$FM4Sender.init($("#receiver_list"));
+	});
+</script>
+</body>
+</html>

@@ -1,11 +1,33 @@
+<!doctype html>
 <html>
 <head>
+
+<!--
+ *
+ * FM4cast - FM4 chromecasts receiver/sender
+ * http://sehaas.github.io/fm4cast
+ *
+ * Copyright 2013 Sebastian Haas (sehaas@deebas.com)
+ * Released under the MIT license
+ *
+ *
+//-->
+ 
 	<title>FM4 chromecast receiver</title>
+	<script src="https://www.gstatic.com/cast/js/receiver/1.0/cast_receiver.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<script src="js/apikey.js"></script>
 	<script src="js/FM4Receiver.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/FM4Receiver.css">
 </head>
 <body>
 	<audio id="audioTag"></audio>
+	<div id="logo"></div>
+
+	<script type="text/javascript">
+		$(function() {
+			$.FM4Receiver.start();
+		});
+	</script>
 </body>
 </html>
