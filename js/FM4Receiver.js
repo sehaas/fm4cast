@@ -29,7 +29,7 @@
 				receiver.createChannelFactory(cast.receiver.RemoteMedia.NAMESPACE));
 
 			$(window).on("load", function() {
-				remoteMedia.setMediaElement($.FM4Receiver)
+				remoteMedia.setMediaElement($.FM4Receiver.tag.get(0));
 			});
 
 			receiver.start();

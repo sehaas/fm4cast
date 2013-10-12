@@ -16,9 +16,9 @@
 	<title>FM4 chromecast receiver</title>
 	<script src="https://www.gstatic.com/cast/js/receiver/1.0/cast_receiver.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	<script src="js/apikey.js"></script>
-	<script src="js/FM4Receiver.js"></script>
-	<link rel="stylesheet" type="text/css" href="css/FM4Receiver.css">
+	<script src="/js/apikey.js"></script>
+	<script src="/js/FM4Receiver.js"></script>
+	<link rel="stylesheet" type="text/css" href="/css/FM4Receiver.css">
 </head>
 <body>
 	<audio id="audioTag"></audio>
@@ -26,7 +26,8 @@
 
 	<script type="text/javascript">
 		$(function() {
-			$.FM4Receiver.start();
+			var fmrc = new $.FM4Receiver($("#audioTag"));
+			fmrc.start();
 		});
 	</script>
 </body>

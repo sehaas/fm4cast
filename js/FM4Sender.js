@@ -20,12 +20,13 @@
 		init : function() {
 			if (window.cast && window.cast.isAvailable) {
 				// Already initialized
-				initializeCastApi();
+				this.initializeCastApi();
 			} else {
 				// Wait for API to post a message to us
-				$(window).on("message", function(event) {
+				var that = this;
+				window.addEventListener("message", function(event) {
 					if (event.source == window && event.data && event.data.source == "CastApi" && event.data.event == "Hello"){
-						initializeCastApi();
+						that.initializeCastApi();
 					}
 				});
 			}
@@ -33,10 +34,13 @@
 
 		initializeCastApi : function() {
 			$.FM4Sender.castApi = castApi = new cast.Api();
-			castApi.addReceiverListener(fm4c.config.apikey, onReceiverList);
+			var that = this;
+			castApi.addReceiverListener(fm4c.config.apikey, function(list) {
+				that.onReceiverList(that, list);
+			});
 		},
 
-		onReceiverList : function(list) {
+		onReceiverList : function(that, list) {
 			$.FM4Sender.receiverMap = {};
 			var tag = $.FM4Sender.tag;
 
@@ -44,7 +48,7 @@
 				$.FM4Sender.receiverMap[val.id] = val;
 				tag.append("<div id='cast_{1}' data-castid='{1}'>{0}</div>".format(val.name, val.id));
 			});
-			$("div", tag).on("click", onReceiverSelected);
+			$("div", tag).on("click", that.onReceiverSelected);
 		},
 
 		onReceiverSelected : function() {
@@ -57,10 +61,11 @@
 			var loadRequest = new cast.MediaLoadRequest("http://mp3stream1.apasf.apa.at:8000/;");
 			loadRequest.autoplay = true;
 
+			var that = this;
 			$.FM4Sender.castApi.launch(launchRequest, function(status) {
 				if (status.status == 'running') {
 					currentActivityId = status.activityId;
-					$.FM4Sender.castApi.loadMedia(currentActivityId, loadRequest, launchCallback);
+					$.FM4Sender.castApi.loadMedia(currentActivityId, loadRequest, that.launchCallback);
 				} else {
 					console.log('Launch failed: ' + status.errorString);
 				}
