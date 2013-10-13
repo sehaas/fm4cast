@@ -11,28 +11,28 @@
 
 
 	$.FM4Receiver = function(element) {
-		$.FM4Receiver.tag = (element instanceof $) ? element : $(element);
+		this.tag = (element instanceof $) ? element : $(element);
+		this.receiver = null;
+		this.remoteMedia = null;
 	};
 
-	$.FM4Receiver.receiver = null;
-	$.FM4Receiver.remoteMedia = null;
 
 	$.FM4Receiver.prototype = {
 
 		start : function() {
 
-			var receiver = $.FM4Receiver.receiver = new cast.receiver.Receiver(
+			this.receiver = new cast.receiver.Receiver(
 				fm4c.config.apikey, [cast.receiver.RemoteMedia.NAMESPACE], "", 5);
 
-			var remoteMedia = $.FM4Receiver.remoteMedia = new cast.receiver.RemoteMedia();
+			this.remoteMedia = new cast.receiver.RemoteMedia();
 			remoteMedia.addChannelFactory(
-				receiver.createChannelFactory(cast.receiver.RemoteMedia.NAMESPACE));
+				this.receiver.createChannelFactory(cast.receiver.RemoteMedia.NAMESPACE));
 
-			$(window).on("load", function() {
-				remoteMedia.setMediaElement($.FM4Receiver.tag.get(0));
-			});
+			$(window).on("load", $.proxy(function() {
+				this.remoteMedia.setMediaElement(this.tag.get(0));
+			}, this));
 
-			receiver.start();
+			this.receiver.start();
 		},
 	};
 }(jQuery));
