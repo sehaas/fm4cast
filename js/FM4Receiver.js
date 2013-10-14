@@ -25,7 +25,7 @@
 				fm4c.config.apikey, [cast.receiver.RemoteMedia.NAMESPACE], "", 5);
 
 			this.remoteMedia = new cast.receiver.RemoteMedia();
-			remoteMedia.addChannelFactory(
+			this.remoteMedia.addChannelFactory(
 				this.receiver.createChannelFactory(cast.receiver.RemoteMedia.NAMESPACE));
 
 			$(window).on("load", $.proxy(function() {
