@@ -11,7 +11,7 @@
 
 	$.FM4Sender = function(element, statusElem) {
 		this.tag = (element instanceof $) ? element : $(element);
-		this.satusTag = (statusElem instanceof $) ? statusElem : $(statusElem);
+		this.statusTag = (statusElem instanceof $) ? statusElem : $(statusElem);
 		this.castApi = null;
 		this.receiverMap = {};
 	};
