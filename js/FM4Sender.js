@@ -69,7 +69,8 @@
 		},
 
 		launchCallback : function(status) {
-			this.statusElem.text("playing");
+			// still a dummy status
+			this.statusTag.text("playing");
 		},
 
 	};
