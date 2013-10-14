@@ -57,6 +57,7 @@
 
 			var loadRequest = new cast.MediaLoadRequest("http://mp3stream1.apasf.apa.at:8000/;");
 			loadRequest.autoplay = true;
+			loadRequest.title = "Radio FM4";
 
 			that.castApi.launch(launchRequest, $.proxy(function(status) {
 				if (status.status == 'running') {
