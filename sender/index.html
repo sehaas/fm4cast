@@ -15,14 +15,20 @@
  
 	<title>FM4 chromecast Sender</title>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	<script src="/js/apikey.js"></script>
-	<script src="/js/FM4Sender.js"></script>
-	<link rel="stylesheet" type="text/css" href="/css/FM4Sender.css"></head>
+	<script src="../js/apikey.js"></script>
+	<script src="../js/FM4Sender.js"></script>
+	<link rel="stylesheet" type="text/css" href="../css/FM4Sender.css"></head>
 <body>
-	<div id="receiver_list"></div>
+	<div class="logo"></div>
+	<div id="playerTag">
+		<p>Receiver List</p>
+		<div id="receiver_list"></div>
+		<p>Status</p>
+		<div id="statusTag"></div>
+	</div>
 <script type="text/javascript">
 	$(function(){
-		var sender = new $.FM4Sender($("#receiver_list"));
+		var sender = new $.FM4Sender($("#receiver_list"), $("#statusTag"));
 		sender.init();
 	});
 </script>

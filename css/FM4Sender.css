@@ -1,0 +1,34 @@
+/*
+ *
+ * FM4cast - FM4 chromecast receiver/sender
+ * http://sehaas.github.io/fm4cast
+ *
+ * Copyright 2013 Sebastian Haas (sehaas@deebas.com)
+ * Released under the MIT license
+ *
+ */
+ 
+body { background:#242424; color:#FFDD00;}
+
+.logo { 
+	background-image: url('../images/fm4.svgz');
+	background-repeat: no-repeat;
+	background-position: 50%;
+	background-size: contain;
+	width: 251px;
+	height: 250px;
+	float: left;
+}
+
+#playerTag {
+	height: 210px;
+	margin: 20px;
+	float: left;
+	width: 300px;
+}
+
+.dynamic {
+	margin-left:10px;
+	color:black
+	background:#939292;
+}

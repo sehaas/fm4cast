@@ -8,8 +8,15 @@
  *
  */
 
+body {
+	margin: 0px;
+	overflow: hidden;
+}
+
 #logo { 
-	background-image: url('http://fm4.orf.at/v2static/images/fm4_logo.jpg');
+	background-image: url('../images/fm4.svgz');
+	background-size: contain;
+	background-repeat: no-repeat;
 	width:100%;
 	height:100%;
 	position: absolute;
