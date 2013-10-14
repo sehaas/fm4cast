@@ -11,7 +11,7 @@
 body { background:#242424; color:#FFDD00;}
 
 .logo { 
-	background-image: url('../images/fm4.svgz');
+	background-image: url('../images/fm4.svg');
 	background-repeat: no-repeat;
 	background-position: 50%;
 	background-size: contain;
