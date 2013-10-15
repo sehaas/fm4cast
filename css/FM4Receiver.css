@@ -14,7 +14,7 @@ body {
 }
 
 #logo { 
-	background-image: url('../images/fm4.svg');
+	background-image: url('http://fm4.orf.at/v2static/images/fm4_logo.jpg');
 	background-size: contain;
 	background-repeat: no-repeat;
 	width:100%;
