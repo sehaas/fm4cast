@@ -16,8 +16,7 @@ body {
 }
 
 #logo { 
-	margin-top:10%;
-	margin-left:10%;
+	margin:10%;
 	font-size: 128px;
 	font-family: Arial, sans-serif;
 	font-weight: bold;
@@ -25,4 +24,8 @@ body {
 
 #uhrzeit {
 	font-size:48px;
+}
+
+#tracks {
+	font-size:24px;
 }

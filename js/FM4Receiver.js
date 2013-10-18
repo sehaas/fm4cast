@@ -36,3 +36,70 @@
 		},
 	};
 }(jQuery));
+
+
+( function( $ ) {
+
+	$.TrackService = function(element) {
+		this.tag = (element instanceof $) ? element : $(element);
+		$(window).on("rendertrackservice", this.renderTrackService);
+	};
+
+	$.TrackService.prototype = {
+
+		start : function() {
+			this._reloadTrackService();
+		},
+
+		_reloadTrackService : function() {
+			$.ajax({
+				"url": "http://hop.orf.at/img-trackservice/fm4.js",
+				"dataType": "jsonp",
+				"cache": false,
+				"jsonp": "callback",
+				"jsonpCallback": "renderTracklist",
+				"success": $.proxy(this.parseTrackService, this),
+			});
+
+
+			window.setTimeout(this._reloadTrackService, 30*1000);
+		},
+
+		parseTrackService : function(data) {
+			$tmp = $("<div></div>");
+			$tmp.html(data);
+			var ts = [];
+			$.each($("li", $tmp), function(lidx, lval) {
+				ts[lidx] = {};
+				ts[lidx].tracktime = $(".tracktime", lval).text();
+				ts[lidx].title =  $(".tracktitle", lval).text();
+				ts[lidx].artist = $(".artist", lval).text();
+			});
+
+			this.renderTrackService(ts);
+		},
+
+		renderTrackService : function(list) {
+			this.tag.empty();
+			$.each(list, $.proxy(function(idx, val) {
+				this.tag.append("<div>{2} - {0} - {1}</div>".format(val.artist, val.title, val.tracktime));
+			}, this));
+		},
+	};
+
+
+}(jQuery));
+
+
+// helper function
+if (!String.prototype.format) {
+	String.prototype.format = String.prototype.f = function() {
+		var s = this,
+		i = arguments.length;
+
+		while (i--) {
+			s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
+		}
+		return s;
+	};
+}

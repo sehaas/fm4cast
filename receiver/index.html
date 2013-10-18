@@ -26,12 +26,15 @@
 	<div id="logo">
 		FM4 chromecast
 		<div id="uhrzeit"></div>
+		<div id="tracks"></div>
 	</div>
 
 	<script type="text/javascript">
 		$(function() {
 			var fmrc = new $.FM4Receiver($("#audioTag"));
 			fmrc.start();
+			var tracks = new $.TrackService($("#tracks"));
+			tracks.start();
 		});
 
 
