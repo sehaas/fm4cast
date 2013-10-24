@@ -42,7 +42,6 @@
 
 	$.TrackService = function(element) {
 		this.tag = (element instanceof $) ? element : $(element);
-		$(window).on("rendertrackservice", this.renderTrackService);
 	};
 
 	$.TrackService.prototype = {
@@ -62,7 +61,7 @@
 			});
 
 
-			window.setTimeout(this._reloadTrackService, 30*1000);
+			window.setTimeout($.proxy(this._reloadTrackService, this), 30*1000);
 		},
 
 		parseTrackService : function(data) {
@@ -82,7 +81,7 @@
 		renderTrackService : function(list) {
 			this.tag.empty();
 			$.each(list, $.proxy(function(idx, val) {
-				this.tag.append("<div>{2} - {0} - {1}</div>".format(val.artist, val.title, val.tracktime));
+				this.tag.append("<div>{2} &gt; {0} - {1}</div>".format(val.artist, val.title, val.tracktime));
 			}, this));
 		},
 	};
