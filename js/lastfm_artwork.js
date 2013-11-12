@@ -37,17 +37,22 @@
 		},
 
 		renderArtwork : function(data) {
-			if (!data && data.artist === "undefined") {
+			this.tag.css("background-image","");
+
+			if (data && data.error) {
 				console.log("Could not load artwork [{0}]: {1}".format(data.error, data.message));
 				return;
 			}
 
-			if (data.artist && data.artist.image) {
+			if (data && data.artist && data.artist.image) {
 				var artwork = $.grep(data.artist.image, function(val, idx) {
 					return val.size === "extralarge";
 				})[0];
 				if (artwork) {
-					this.tag.css("background-image", "url('{0}')".format(artwork["#text"]));
+					var url = artwork["#text"];
+					if (url !== "undefined" && url !== "") {
+						this.tag.css("background-image", "url('{0}')".format(url));
+					}
 				}
 			}
 		},
