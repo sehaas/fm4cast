@@ -11,3 +11,4 @@ var fm4c = {};
 fm4c.config = {};
 
 fm4c.config.apikey = 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX';
+fm4c.config.lastfm_apikey = 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY';
