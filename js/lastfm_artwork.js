@@ -26,25 +26,24 @@
 				"url" : url,
 				"dataType" : "jsonp",
 				"data" : {
-					"method" : "track.getInfo",
+					"method" : "artist.getinfo",
 					"format" : "json",
 					"api_key" : fm4c.config.lastfm_apikey,
 					"autocorrect" : 1,
 					"artist" : artist,
-					"track" : track,
 				},
 				"success" : $.proxy(this.renderArtwork, this),
 			});
 		},
 
 		renderArtwork : function(data) {
-			if (!data && data.track === "undefined") {
+			if (!data && data.artist === "undefined") {
 				console.log("Could not load artwork [{0}]: {1}".format(data.error, data.message));
 				return;
 			}
 
-			if (data.track && data.track.album && data.track.album.image) {
-				var artwork = $.grep(data.track.album.image, function(val, idx) {
+			if (data.artist && data.artist.image) {
+				var artwork = $.grep(data.artist.image, function(val, idx) {
 					return val.size === "extralarge";
 				})[0];
 				if (artwork) {
