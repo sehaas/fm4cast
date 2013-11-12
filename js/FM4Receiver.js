@@ -80,7 +80,12 @@
 
 		renderTrackService : function(list) {
 			this.tag.empty();
+			var current = true;
 			$.each(list, $.proxy(function(idx, val) {
+				if (current) {
+					$(document).trigger("currentsong", [ val.artist, val.title ]);
+					current = false;
+				}
 				this.tag.append("<div>{2} &gt; {0} - {1}</div>".format(val.artist, val.title, val.tracktime));
 			}, this));
 		},

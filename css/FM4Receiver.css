@@ -12,20 +12,32 @@ body {
 	margin: 0px;
 	overflow: hidden;
 	background-color: #ffdd00;
-	color:#000000;
+	color: #000000;
 }
 
 #logo { 
-	margin:5%;
+	margin: 5%;
 	font-size: 128px;
 	font-family: Arial, sans-serif;
 	font-weight: bold;
 }
 
+#artwork {
+	float: right;
+	height: 300px;
+	width: 300px;
+	background-size: contain;
+	background-position: 50%;
+	background-repeat: no-repeat;
+}
+
 #uhrzeit {
-	font-size:48px;
+	font-size: 48px;
+	float: left;
 }
 
 #tracks {
-	font-size:24px;
+	font-size: 24px;
+	clear: left;
+	float: left;
 }

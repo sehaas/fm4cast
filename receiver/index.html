@@ -19,12 +19,14 @@
 	<script src="../js/moment.min.js"></script>
 	<script src="../js/apikey.js"></script>
 	<script src="../js/FM4Receiver.js"></script>
+	<script src="../js/lastfm_artwork.js"></script>
 	<link rel="stylesheet" type="text/css" href="../css/FM4Receiver.css">
 </head>
 <body>
 	<audio id="audioTag"></audio>
 	<div id="logo">
 		FM4 chromecast
+		<div id="artwork"></div>
 		<div id="uhrzeit"></div>
 		<div id="tracks"></div>
 	</div>
@@ -35,6 +37,8 @@
 			fmrc.start();
 			var tracks = new $.TrackService($("#tracks"));
 			tracks.start();
+			var artwork = new $.LastFMArtwork($("#artwork"));
+			artwork.start();
 		});
 
 
