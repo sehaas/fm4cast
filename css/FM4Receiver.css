@@ -27,7 +27,7 @@ body {
 	height: 300px;
 	width: 300px;
 	background-size: contain;
-	background-position: 50%;
+	background-position: 50% 0;
 	background-repeat: no-repeat;
 }
 
