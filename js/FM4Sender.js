@@ -33,8 +33,23 @@
 		},
 
 		initializeCastApi : function() {
-			this.castApi = new cast.Api();
-			this.castApi.addReceiverListener(fm4c.config.apikey, $.proxy(this.onReceiverList, this));
+			this.initApiKeys($.proxy(function() {
+				this.castApi = new cast.Api();
+				this.castApi.addReceiverListener(fm4c.config.apikey, $.proxy(this.onReceiverList, this));
+			}, this));
+		},
+
+		initApiKeys : function(success) {
+			if (window.fm4c && fm4c.config && fm4c.config.apikey) {
+				success();
+			} else {
+				$.getScript("/apikey.js").done(function(){
+					success();
+				})
+				.fail(function() {
+					console.log("could not load apikey.js");
+				});
+			}
 		},
 
 		onReceiverList : function(list) {
