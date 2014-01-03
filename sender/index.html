@@ -28,8 +28,8 @@
 	</div>
 <script type="text/javascript">
 	$(function(){
-		var sender = new $.FM4Sender($("#receiver_list"), $("#statusTag"));
-		sender.init();
+		window.fm4sender = new $.FM4Sender($("#receiver_list"), $("#statusTag"));
+		fm4sender.init();
 	});
 </script>
 </body>
