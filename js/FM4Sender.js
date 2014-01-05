@@ -2,7 +2,7 @@
  * FM4cast - FM4 chromecast receiver/sender
  * http://sehaas.github.io/fm4cast
  *
- * Copyright 2013 Sebastian Haas (sehaas@deebas.com)
+ * Copyright 2013,2014 Sebastian Haas (sehaas@deebas.com)
  * Released under the MIT license
  *
  */
@@ -76,7 +76,7 @@
 
 			that.castApi.launch(launchRequest, $.proxy(function(status) {
 				if (status.status == 'running') {
-					currentActivityId = status.activityId;
+					this.currentActivityId = status.activityId;
 					this.castApi.loadMedia(currentActivityId, loadRequest, $.proxy(this.launchCallback, this));
 				} else {
 					console.log('Launch failed: ' + status.errorString);

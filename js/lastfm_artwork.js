@@ -2,7 +2,7 @@
  * FM4cast - FM4 chromecast receiver/sender
  * http://sehaas.github.io/fm4cast
  *
- * Copyright 2013 Sebastian Haas (sehaas@deebas.com)
+ * Copyright 2013,2014 Sebastian Haas (sehaas@deebas.com)
  * Released under the MIT license
  *
  */
