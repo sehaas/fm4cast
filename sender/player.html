@@ -18,9 +18,53 @@
 	<script src="../js/apikey.js"></script><!-- make sure your apikeyfile is there -->
 	<script src="../js/FM4Player.js"></script>
 	<link rel="stylesheet" type="text/css" href="../css/FM4Sender.css"></head>
+	<style type="text/css">
+		#player-status,
+		#media-status {
+			float:left;
+			width: 45%;
+			height: 60%;
+			overflow: auto;
+		}
+
+	</style>
 <body>
-	<div class="logo">FM4</div>
-	<div id="playerTag">
+	<ul id="receiver"></ul>
+
+	<div id="player-status">
 	</div>
+
+	<div id="media-status">
+	</div>
+
+	<script type="text/javascript">
+		(function($) {
+			var player = window.player = new $.FM4Player(fm4c.config.apikey);
+			$(player).on("cast-receiver-list", function(evnt, list){
+				var recList = $('#receiver');
+				recList.empty();
+				$.each(list, function(idx, val){
+					var rec = $('<li>');
+					rec.text(val.name);
+					rec.on('click', val, function(e){
+						player.connect(e.data);
+					});
+					recList.append(rec);
+				});
+			});
+
+			player.init();
+			$(player).on("cast-media-player-status", function(e,s){
+				var elem = $("<div>");
+				elem.text(JSON.stringify(s));
+				$("#player-status").prepend(elem);
+			});
+			$(player).on("cast-media-status", function(e,s){
+				var elem = $("<div>");
+				elem.text(JSON.stringify(s));
+				$("#media-status").prepend(elem);
+			});
+		}(jQuery));
+	</script>
 </body>
 </html>

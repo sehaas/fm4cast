@@ -26,8 +26,6 @@
 			this.logger = function() {};
 		}
 
-		this.init();
-
 	};
 
 	$.FM4Player.prototype = {
@@ -62,6 +60,7 @@
 				that.receiverMap[val.id] = val;
 			});
 			this.logger("update receiver list: " + list.length);
+			$(this).trigger("cast-receiver-list", [list] );
 		},
 
 		connect : function(receiver) {
@@ -73,6 +72,7 @@
 			this.castApi.launch(launchRequest, function(status) {
 				if (status.status == 'running') {
 					that.storeCurrentActivity(status.activityId);
+					that.registerMediaStatus();
 					that.logger('Activity successfull launched: ' + status.activityId);
 				} else {
 					that.logger('Launch failed: ' + status.errorString);
@@ -87,25 +87,84 @@
 				return false;
 			}
 
+			var that = this;
 			this.castApi.getActivityStatus(curid, function(status) {
 				if (status.status === 'running') {
-
+					that.registerMediaStatus();
+					that.logger('Successfull reconnected to activity: ' + curid);
 				} else {
+					that.logger('Could not reconnect to activity: ' + curid);
 				}
 			});
 		},
 
 
 		disconnect : function() {
+			var curid = this.loadCurrentActivity();
+			if (!curid) {
+				return false;
+			}
+			var that = this;
+			this.castApi.stopActivity(curid, function(status) {
+				if (status.status === 'stopped') {
+					that.clearCurrentActivity();
+					that.logger('Activity successfull stopped');
+				} else {
+					that.logger('A problem occurred while stopping activity. ' + status.errorString);
+				}
+			});
+		},
 
+		registerMediaStatus : function() {
+			var that = this;
+			this.castApi.addMediaStatusListener(this.currentActivity, function(status) {
+				$(that).trigger("cast-media-player-status", status);
+			});
+			this.mediaStatusInterval = window.setInterval(function() {
+				that.castApi.getMediaStatus(that.currentActivity, function(status) {
+					$(that).trigger("cast-media-status-interval", status);
+				});
+			}, 5000);
+		},
+
+		play : function(seekOrUrl, opts) {
+			var that = this;
+			if (typeof(seekOrUrl) === "string") {
+				var mediaurl = seekOrUrl;
+				var loadRequest = new cast.MediaLoadRequest(mediaurl);
+				loadRequest.autoplay = true;
+				$.extend(loadRequest, opts);
+				this.castApi.loadMedia(this.currentActivity, loadRequest, function(status) {
+					$(that).trigger("cast-media-status", status);
+				});
+			} else {
+				var playRequest = new cast.MediaPlayRequest(seekOrUrl);
+				this.castApi.playMedia(this.currentActivity, playRequest, function(status){
+					$(that).trigger("cast-media-status", status);
+				});
+			}
+		},
+
+		pause : function() {
+			var that = this;
+			this.castApi.pauseMedia(this.currentActivity, function(status){
+				$(that).trigger("cast-media-status", status);
+			});
 		},
 
 		storeCurrentActivity : function(id) {
+			this.currentActivity = id;
 			localStorage.setItem('player.currentActivity', id);
 		},
 
 		loadCurrentActivity : function() {
-			return localStorage.getItem('player.currentActivity');
+			this.currentActivity = localStorage.getItem('player.currentActivity');
+			return this.currentActivity;
+		},
+
+		clearCurrentActivity : function() {
+			this.currentActivity = null;
+			return localStorage.removeItem('player.currentActivity');
 		},
 
 		getOnDemandShows : {

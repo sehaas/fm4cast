@@ -77,7 +77,7 @@
 			that.castApi.launch(launchRequest, $.proxy(function(status) {
 				if (status.status == 'running') {
 					this.currentActivityId = status.activityId;
-					this.castApi.loadMedia(currentActivityId, loadRequest, $.proxy(this.launchCallback, this));
+					this.castApi.loadMedia(this.currentActivityId, loadRequest, $.proxy(this.launchCallback, this));
 				} else {
 					console.log('Launch failed: ' + status.errorString);
 				}
