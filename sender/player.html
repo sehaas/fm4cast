@@ -24,15 +24,30 @@
 	<style type="text/css">
 		#player-status,
 		#media-status {
-			float:left;
-			width: 45%;
-			height: 60%;
+			width: 99%;
+			height: 300px;
 			overflow: auto;
 		}
 
+		#player {
+			width:400px;
+			height:250px;
+			background-color:white;
+		}
+
+		#slider {
+			margin:20px;
+		}
 	</style>
 <body>
 	<ul id="receiver"></ul>
+
+	<div id="player">
+
+		<div id="slider">
+		</div>
+	</div>
+
 
 	<div id="player-status">
 	</div>
@@ -57,10 +72,34 @@
 			});
 
 			player.init();
+
+			$("#slider").slider();
+			$("#slider").on("slidestop", function(e, ui) {
+				player.play(ui.value);
+			});
+
 			$(player).on("cast-media-player-status", function(e,s){
 				var elem = $("<div>");
 				elem.text(JSON.stringify(s));
 				$("#player-status").prepend(elem);
+
+				if (s.duration) {
+					$("#slider").slider("option", {
+						value: s.position,
+						range: "min",
+						min: 0,
+						max: s.duration,
+						disabled: false,
+					});
+				} else {
+					$("#slider").slider("option", {
+						value: 0,
+						range: "min",
+						min: 0,
+						max: 1,
+						disabled : true,
+					});
+				}
 			});
 			$(player).on("cast-media-status", function(e,s){
 				var elem = $("<div>");
