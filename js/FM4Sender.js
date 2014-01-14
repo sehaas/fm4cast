@@ -7,86 +7,92 @@
  *
  */
 
-( function( $ ) {
+;( function( $ ) {
 
-	$.FM4Sender = function(element, statusElem) {
-		this.tag = (element instanceof $) ? element : $(element);
-		this.statusTag = (statusElem instanceof $) ? statusElem : $(statusElem);
-		this.castApi = null;
-		this.receiverMap = {};
+	$.FM4Sender = function() {
+
 	};
 
 
 	$.FM4Sender.prototype = {
-		init : function() {
-			if (window.cast && window.cast.isAvailable) {
-				// Already initialized
-				this.initializeCastApi();
-			} else {
-				// Wait for API to post a message to us
-				window.addEventListener("message", $.proxy(function(event) {
-					if (event.source == window && event.data && event.data.source == "CastApi" && event.data.event == "Hello"){
-						this.initializeCastApi();
-					}
-				}, this));
-			}
+
+
+
+		getOnDemandShows : {
+			'4HOPWed': 'House Of Pain',
+			'4ULMon': 'Unlimited',
+			'4ULTue': 'Unlimited',
+			'4ULWed': 'Unlimited',
+			'4ULThu': 'Unlimited',
+			'4ULFri': 'Unlimited',
+			'4SSUSun': 'Sunny Side Up',
+			'4CHSat': 'Charts',
+			'4ZSSun': 'Zimmerservice',
+			'4JZFri': 'Jugend-Zimmer',
+			'4DDSat': 'Davi Decks',
+			'4ISSun': 'Im Sumpf',
+			'4HEMon': 'Heartbeat',
+			'4HSTue': 'High Spirits',
+			'4TVThe': 'Tribe Vibes',
+			'4SHFri': 'Salon Helga',
+			'4GLSun': 'Graue Lagune',
+			'4PHTue': 'Fivas Ponyhof',
+			'4CZWed': 'Chez Hermez',
+			'4BTThu': 'Bonustrack',
+			'4PXFri': 'Project X',
+			'4LBFri': 'La Boum de Luxe',
+			'4SSSat': 'Swound Sound System',
+			'4LRMon': 'Liquid Radio',
+			'4DKMSun': 'Digital Konfusion',
+			'4SOPMon': 'Soundpark',
+			// '4UTAMon' : "Unter Tannen",
+			// '4UTATue' : "Unter Tannen",
+			// '4UTAWed' : "Unter Tannen",
+			// '4UTAThu' : "Unter Tannen",
+			// '4UTAFris' : "Unter Tannen",
+			// '4DZWed' : Doppelzimmer,
 		},
 
-		initializeCastApi : function() {
-			this.initApiKeys($.proxy(function() {
-				this.castApi = new cast.Api();
-				this.castApi.addReceiverListener(fm4c.config.apikey, $.proxy(this.onReceiverList, this));
-			}, this));
+		getPodcasts : [
+			"http://static.orf.at/podcast/fm4/fm4_interview_podcast.xml",
+			"http://static.orf.at/podcast/fm4/fm4_reality_check_podcast.xml",
+			"http://static.orf.at/podcast/fm4/fm4_musikerziehung.xml",
+			"http://static.orf.at/podcast/fm4/fm4_ombudsmann.xml",
+			"http://static.orf.at/podcast/fm4/fm4_science_busters.xml",
+			"http://static.orf.at/podcast/fm4/FM4_Mit_Akzent.xml",
+			"http://static.orf.at/podcast/fm4/FM4_Johanna_gefaellt_das_nicht.xml",
+			"http://static.orf.at/podcast/fm4/fm4_projekt_x.xml",
+			"http://static.orf.at/podcast/fm4/fm4_chez_hermes_extrawurscht.xml",
+			//"http://static.orf.at/fm4/podcast/soundpark.xml",
+			//"http://static.orf.at/fm4/podcast/fm4_comedy.xml",
+		],
+
+		getPocastInfo : function(podcast) {
+			var url = "http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q=" + podcast;
+			$.ajax({
+				url : url,
+				dataType : 'jsonp',
+				cache : false,
+				success : $.proxy(this._onPodcastInfo, this)
+			});
 		},
 
-		initApiKeys : function(success) {
-			if (window.fm4c && fm4c.config && fm4c.config.apikey) {
-				success();
-			} else {
-				$.getScript("/apikey.js").done(function(){
-					success();
-				})
-				.fail(function() {
-					console.log("could not load apikey.js");
-				});
-			}
+		_onPodcastInfo : function(response) {
+			console.log(response.responseData.feed.entries.length);
 		},
 
-		onReceiverList : function(list) {
-			this.receiverMap = {};
-
-			this.tag.empty();
-			$.each(list, $.proxy(function(idx, val) {
-				this.receiverMap[val.id] = val;
-				this.tag.append("<div id='cast_{1}' data-castid='{1}'>{0}</div>".format(val.name, val.id));
-			}, this));
-			$("div", this.tag).on("click", $.proxy(this.onReceiverSelected, null, this));
+		getOnDemandInfo : function( key ) {
+			var showurl = 'http://audioapi.orf.at/fm4/json/2.0/playlist/' + key;
+			$.ajax({
+				url : showurl,
+				dataType : 'jsonp',
+				cache : false,
+				success : $.proxy(this._onDemandInfo, this)
+			});
 		},
 
-		onReceiverSelected : function(that) {
-			var $this = $(this);
-			var castId = $this.data("castid");
-			var receiver = that.receiverMap[castId];
-			var launchRequest = new cast.LaunchRequest(fm4c.config.apikey, receiver);
-			launchRequest.parameters = '';
-
-			var loadRequest = new cast.MediaLoadRequest("http://mp3stream1.apasf.apa.at:8000/;");
-			loadRequest.autoplay = true;
-			loadRequest.title = "Radio FM4";
-
-			that.castApi.launch(launchRequest, $.proxy(function(status) {
-				if (status.status == 'running') {
-					this.currentActivityId = status.activityId;
-					this.castApi.loadMedia(this.currentActivityId, loadRequest, $.proxy(this.launchCallback, this));
-				} else {
-					console.log('Launch failed: ' + status.errorString);
-				}
-			}, that));
-		},
-
-		launchCallback : function(status) {
-			// still a dummy status
-			this.statusTag.text("playing");
+		_onDemandInfo : function( response ) {
+			console.log('http://loopstream01.apa.at/?channel=fm4&ua=flash&id=' + response.data.streams[0].loopStreamId);
 		},
 
 	};
