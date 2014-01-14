@@ -31,18 +31,25 @@
 
 	$.CastPlayer.prototype = {
 
-		init : function() {
+		init : function(reconnect) {
 			if (window.cast && window.cast.isAvailable) {
-			// Already initialized
-			this.initializeCastApi();
+				// Already initialized
+				this.initializeCastApi();
+				if (reconnect) {
+					this.reconnect();
+				}
 			} else {
 				// Wait for API to post a message to us
-				window.addEventListener("message", $.proxy(function(event) {
+				var that = this;
+				window.addEventListener("message", function(event) {
 					if (event.source == window && event.data &&
 						event.data.source == "CastApi" && event.data.event == "Hello") {
-						this.initializeCastApi();
+						that.initializeCastApi();
+						if (reconnect) {
+							that.reconnect();
+						}
 					}
-				}, this));
+				});
 			}
 		},
 
