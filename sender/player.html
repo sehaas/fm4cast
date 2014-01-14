@@ -98,6 +98,14 @@
 
 			player.init();
 
+			$(".player .pushbutton").on("click", function(){
+				if (player.state == 2) {
+					player.pause();
+				} else {
+					player.play();
+				}
+			});
+
 			$(".player>.slider").slider({
 				disabled:true,
 				min: 0,
