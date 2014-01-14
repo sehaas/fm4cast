@@ -18,7 +18,7 @@
 	<script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 
 	<script src="../js/apikey.js"></script><!-- make sure your apikeyfile is there -->
-	<script src="../js/FM4Player.js"></script>
+	<script src="../js/CastPlayer.js"></script>
 	<link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" >
 	<link href="../css/FM4Sender.css" rel="stylesheet" type="text/css" >
 	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
@@ -79,7 +79,7 @@
 
 	<script type="text/javascript">
 		(function($) {
-			var player = window.player = new $.FM4Player(fm4c.config.apikey);
+			var player = window.player = new $.CastPlayer(fm4c.config.apikey);
 			$(player).on("cast-receiver-list", function(evnt, list){
 				var recList = $('#receiver');
 				recList.empty();
@@ -106,6 +106,10 @@
 			});
 
 			$(player).on("cast-media-player-status", function(e,s){
+				var img = s.imageUrl ? "url('" + s.imageUrl + "')" : "";
+				$(".player .mediaimage").css("background-image", img);
+				$(".player .mediainfo").text(s.title);
+
 				if (s.duration) {
 					$(".player>.slider").slider("option", {
 						value: s.position,
@@ -119,6 +123,13 @@
 						disabled : true,
 					});
 				}
+				
+				if (s.state == 2) {
+					$(".player .pushbutton").removeClass("fa-play").addClass("fa-pause");
+				} else {
+					$(".player .pushbutton").removeClass("fa-pause").addClass("fa-play");
+				}
+
 			});
 
 			$(player).on("cast-media-status", function(e,s){
