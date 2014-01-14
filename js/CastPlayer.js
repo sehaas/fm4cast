@@ -125,7 +125,7 @@
 
 		_registerMediaStatus : function() {
 			var that = this;
-			this.castApi.getMediaStatus(this.currentActivity, this._handleMediaPlayerStatus.bind(this));
+			this.castApi.getMediaStatus(this.currentActivity, this._handleMediaResult.bind(this));
 			this.castApi.addMediaStatusListener(this.currentActivity, this._handleMediaPlayerStatus.bind(this));
 			this.mediaStatusInterval = window.setInterval(function() {
 				that.castApi.getMediaStatus(that.currentActivity, function(status) {
@@ -144,10 +144,10 @@
 				var loadRequest = new cast.MediaLoadRequest(mediaurl);
 				loadRequest.autoplay = true;
 				$.extend(loadRequest, opts);
-				this.castApi.loadMedia(this.currentActivity, loadRequest, this._handleMediaStatus.bind(this));
+				this.castApi.loadMedia(this.currentActivity, loadRequest, this._handleMediaResult.bind(this));
 			} else {
 				var playRequest = new cast.MediaPlayRequest(seekOrUrl);
-				this.castApi.playMedia(this.currentActivity, playRequest, this._handleMediaStatus.bind(this));
+				this.castApi.playMedia(this.currentActivity, playRequest, this._handleMediaResult.bind(this));
 			}
 		},
 
@@ -156,10 +156,10 @@
 				return false;
 			}
 			var that = this;
-			this.castApi.pauseMedia(this.currentActivity, this._handleMediaStatus.bind(this));
+			this.castApi.pauseMedia(this.currentActivity, this._handleMediaResult.bind(this));
 		},
 
-		_handleMediaStatus : function(status){
+		_handleMediaResult : function(status){
 			this.state = status.status;
 			$(this).trigger("cast-media-status", status);
 		},
