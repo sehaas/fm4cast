@@ -10,23 +10,15 @@
 ;( function( $ ) {
 
 	CastSource = function(opts) {
-		var defaultOpt = {
-			title:null,
-			url:null,
-			logo:null,
-			parent:null,
-			children:[],
-			text:null,
-			date:null,
-		};
-		$.extend(defaultOpt, opts);
-		this.title = defaultOpt.title;
-		this.url = defaultOpt.url;
-		this.logo = defaultOpt.logo;
-		this.parent = defaultOpt.parent;
-		this.children = defaultOpt.children;
-		this.text = defaultOpt.text;
-		this.date = defaultOpt.date;
+		this.title = null;
+		this.url = null;
+		this.logo = null;
+		this.parent = null;
+		this.children = [];
+		this.text = null;
+		this.date = null;
+
+		$.extend(this, opts);
 	},
 
 	CastSource.prototype = {
