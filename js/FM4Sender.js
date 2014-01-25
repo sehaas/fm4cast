@@ -139,7 +139,7 @@
 			}
 			this.pcToFetch = pods.length;
 			$.each(pods, function(idx, val) {
-				var url = "http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&output=xml&q=" + val;
+				var url = "//ajax.googleapis.com/ajax/services/feed/load?v=1.0&output=xml&q=" + val;
 				$.ajax({
 					url : url,
 					dataType : 'jsonp',
@@ -180,7 +180,7 @@
 				});
 				this.content.addChild(this.ondemand);
 			}
-			var showurl = 'http://audioapi.orf.at/fm4/json/2.0/playlist/' + key;
+			var showurl = '//audioapi.orf.at/fm4/json/2.0/playlist/' + key;
 			$.ajax({
 				url : showurl,
 				dataType : 'jsonp',
