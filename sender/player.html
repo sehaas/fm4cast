@@ -16,6 +16,7 @@
 	<title>FM4 chromecast Player</title>
 	<script src="../js/jquery.min.js"></script>
 	<script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="../js/jsrender.js"></script>
 
 	<script src="../js/apikey.js"></script><!-- make sure your apikeyfile is there -->
 	<script src="../js/CastPlayer.js"></script>
@@ -80,6 +81,17 @@
 		<div class="slider"></div>
 	</div>
 
+	<div id="playlist"></div>
+
+	<script id="plTemp" type="text/x-jsrender">
+		<div class="accordion">
+			<h3>{{:title}}</h3>
+			<div>
+			<p>{{:text}}</p>
+			{{for children tmpl="#plTemp" /}}
+			</div>
+		</div>
+	</script>
 
 	<script type="text/javascript">
 		(function($) {
@@ -145,6 +157,16 @@
 			});
 
 			$(player).on("cast-media-status", function(e,s){
+			});
+
+			var sender = window.sender = new $.FM4Sender();
+			$(sender).on("sender-new-content", function(event, content) {
+				$("#playlist").html($("#plTemp").render(content));
+				$("#playlist .accordion").accordion({
+					heightStyle: 'content',
+					collapsible: true,
+					active: false
+				});
 			});
 
 		}(jQuery));
