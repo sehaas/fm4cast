@@ -125,7 +125,7 @@
 			//"http://static.orf.at/fm4/podcast/fm4_comedy.xml",
 		],
 
-		getPocastInfo : function(podcast, clear) {
+		getPodcastInfo : function(podcast, clear) {
 			var that = this;
 			if (this.podcast == null || clear) {
 				this.podcast = new CastSource({
@@ -139,7 +139,7 @@
 			}
 			this.pcToFetch = pods.length;
 			$.each(pods, function(idx, val) {
-				var url = "http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&output=json_xml&q=" + val;
+				var url = "http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&output=xml&q=" + val;
 				$.ajax({
 					url : url,
 					dataType : 'jsonp',
@@ -151,17 +151,17 @@
 		},
 
 		_onPodcastInfo : function(response) {
-			var feed = response.responseData.feed;
+			var feed = $(response.responseData.xmlString);
 			var pod = new CastSource({
-				title : feed.title,
-				text : feed.description,
+				title : $("channel>title", feed).text(),
+				text : $("channel>description", feed).text(),
 			});
-			$.each(feed.entries, function(idx, val) {
+			$.each($("channel>item", feed), function(idx, val) {
 				var itm = new CastSource({
-					title : val.title,
-					url : val.link,
-					text :  val.content,
-					date : val.publishedDate,
+					title : $("title", val).text(),
+					url : $("enclosure", val).attr("url"),
+					text :  $("description", val).text(),
+					date : $("pubdate", val).text(),
 				});
 				pod.addChild(itm);
 			});
