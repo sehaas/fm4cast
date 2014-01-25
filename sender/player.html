@@ -85,7 +85,12 @@
 
 	<script id="plTemp" type="text/x-jsrender">
 		<div class="accordion">
-			<h3>{{:title}}</h3>
+			<h3>
+				{{:title}}
+				{{if url }}
+					<button data-media="{{:url}}">play</button>
+				{{/if}}
+			</h3>
 			<div>
 			<p>{{:text}}</p>
 			{{for children tmpl="#plTemp" /}}
@@ -167,7 +172,16 @@
 					collapsible: true,
 					active: false
 				});
+				$("#playlist [data-media]").on("click", function(event){
+					event.stopPropagation();
+					event.preventDefault();
+					var media = $(this).data("media");
+					player.play(media);
+				});
 			});
+
+			sender.getOnDemandInfo(sender.getOnDemandShows);
+			sender.getPodcastInfo(sender.getPodcasts);
 
 		}(jQuery));
 	</script>
