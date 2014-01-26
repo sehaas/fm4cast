@@ -88,14 +88,14 @@
 		<div class="accordion">
 			<h3>
 				{{:title}}
-				{{if date}}- {{:date.format('DD.MM.YYYY')}}{{/if}}
-				{{if url }}
-					<button data-media="{{:url}}">play</button>
+				{{if contentInfo.date}}- {{:contentInfo.date.format('DD.MM.YYYY')}}{{/if}}
+				{{if src }}
+					<button data-media="{{:getUID()}}">play</button>
 				{{/if}}
 			</h3>
 			<div>
-			<p>{{:text}}</p>
-			{{for children tmpl="#plTemp" /}}
+			<p>{{:contentInfo.description}}</p>
+			{{for ~playlist.getChildren(getUID()) ~playlist=~playlist tmpl="#plTemp" /}}
 			</div>
 		</div>
 	</script>
@@ -166,9 +166,10 @@
 			$(player).on("cast-media-status", function(e,s){
 			});
 
+
 			var sender = window.sender = new $.FM4Sender();
 			$(sender).on("sender-new-content", function(event, content) {
-				$("#playlist").html($("#plTemp").render(content));
+				$("#playlist").html($("#plTemp").render(sender.liveStream,{playlist: content}));
 				$("#playlist .accordion").accordion({
 					heightStyle: 'content',
 					collapsible: true,
@@ -177,8 +178,8 @@
 				$("#playlist [data-media]").on("click", function(event){
 					event.stopPropagation();
 					event.preventDefault();
-					var media = $(this).data("media");
-					player.play(media);
+					var media = sender.playlist.getElement($(this).data("media"));
+					player.play(media.src, media);
 				});
 			});
 

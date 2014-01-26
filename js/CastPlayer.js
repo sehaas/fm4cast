@@ -9,6 +9,35 @@
 
 ;( function( $ ) {
 
+	$.CastMediaItem = function(opts) {
+		this.autoplay = undefined;
+		this.src = undefined;
+		this.title = undefined;
+		this.imageUrl = undefined,
+		this.contentInfo = {
+			uid : undefined,
+			description : undefined,
+			date : undefined,
+		};
+		$.extend(this, opts);
+	};
+
+	$.CastMediaItem.prototype= {
+		getUID : function() {
+			return this.contentInfo.uid;
+		},
+
+		data : function(){
+			return {
+				autoplay : this.autoplay,
+				src : this.src,
+				title : this.title,
+				imageUrl : this.imageUrl,
+				contentInfo : this.contentInfo,
+			};
+		}
+	};
+
 	$.CastPlayer = function(app_key, opt_conf) {
 		this.app_key = app_key;
 		this.receiverMap = {};
@@ -143,7 +172,11 @@
 				var mediaurl = seekOrUrl;
 				var loadRequest = new cast.MediaLoadRequest(mediaurl);
 				loadRequest.autoplay = true;
-				$.extend(loadRequest, opts);
+				if (opts instanceof $.CastMediaItem) {
+					$.extend(loadRequest, opts.data());
+				} else {
+					$.extend(loadRequest, opts);
+				}
 				this.castApi.loadMedia(this.currentActivity, loadRequest, this._handleMediaResult.bind(this));
 			} else {
 				var playRequest = new cast.MediaPlayRequest(seekOrUrl);

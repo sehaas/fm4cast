@@ -9,86 +9,108 @@
 
 ;( function( $ ) {
 
-	CastSource = function(opts) {
-		this.title = null;
-		this.url = null;
-		this.logo = null;
-		this.parent = null;
-		this.children = [];
-		this.text = null;
-		this.date = null;
-
+	PlayList = function(opts) {
+		this.map = {};
+		this.children = {};
+		this.parent = {};
 		$.extend(this, opts);
 	},
 
-	CastSource.prototype = {
-		getLogo : function() {
-			if (this.logo) {
-				return this.logo;
-			}
-			if (this.parent) {
-				return this.parent.getLogo();
-			}
-			return null;
-		},
+	PlayList.parse = function(json) {
+		var data = JSON.parse(json);
+		var parsed = {
+			map : {},
+			children : data.children,
+			parent : data.parent,
+		};
+		$.each(data.map, function(idx, val){
+			parsed.map[idx] = new $.CastMediaItem(val);
+		});
+		var pl = new PlayList(parsed);
+		return pl;
+	};
 
-		getTitle : function() {
-			if (this.title) {
-				return this.title;
-			}
-			if (this.parent) {
-				return this.parent.getTitle();
-			}
-			return null;
-		},
-
-		addChild : function(child, usedate) {
-			if (!child) {
-				return;
-			}
-			child.parent = this;
-			this.children.push(child);
-			if (usedate) {
-				this.children.sort(this._cmpDate);
-			}else{
-				this.children.sort(this._cmpTitle);
-			}
-		},
-
-		_cmpTitle : function(a,b) {
-			var c = a.title.localeCompare(b.title);
-			if (c != 0) {
-				return c;
-			}
-			if (a.date == b.date) {
-				return 0;
-			} else if (a.date < b.date) {
-				return  -1;
+	PlayList.prototype = {
+		add : function(elem, parent) {
+			if (!elem || !elem.getUID()) return;
+			this.map[elem.getUID()] = elem;
+			if (parent) {
+				this.parent[elem.getUID()] = parent.getUID();
+				this.children[parent.getUID()].push(elem.getUID());
 			} else {
-				return 1;
+				this.parent[elem.getUID()] = null;				
+			}
+			if (!this.children[elem.getUID()]) {
+				this.children[elem.getUID()] = [];
 			}
 		},
 
-		_cmpDate : function(a,b) {
-			if (a.date == b.date) {
-				return a.title.localeCompare(b.title);
-			} else if (a.date < b.date) {
-				return  1;
+		getElement : function(uid) {
+			if (!uid) return null;
+			return this.map[uid];
+		},
+
+		getParent : function(elem) {
+			if (!elem) return null;
+			var uid = "";
+			if (typeof(elem) === "string") {
+				uid = elem;
+			} else if (!elem.getUID()) {
+				return null;
 			} else {
-				return -1;
+				uid = elem.getUID();
 			}
+			return this.parent[uid];
+		},
+
+		getChildren : function(elem) {
+			if (!elem) return null;
+			var uid = "";
+			if (typeof(elem) === "string") {
+				uid = elem;
+			} else if (!elem.getUID()) {
+				return null;
+			} else {
+				uid = elem.getUID();
+			}
+			return this.children[uid].map(this.getElement.bind(this));
+		},
+
+		stringify : function() {
+			return JSON.stringify(this);
 		},
 	},
 
 	$.FM4Sender = function() {
-		this.content = new CastSource({
+		this.playlist = new PlayList();
+		this.liveStream = new $.CastMediaItem({
 			title : "Radio FM4",
-			logo : "http://fm4.orf.at/v2static/images/fm4_logo.jpg",
-			text : "fm4.ORF.at: Berichte und Kommentare zu Musik, Popkultur, Film, Literatur, Games und Politik.",
-			url : "http://mp3stream1.apasf.apa.at:8000/;",
+			src : "http://mp3stream1.apasf.apa.at:8000/;",
+			imageUrl : "http://fm4.orf.at/v2static/images/fm4_logo.jpg",
+			contentInfo: {
+				uid : 'LiveStream',
+				description : "fm4.ORF.at: Berichte und Kommentare zu Musik, Popkultur, Film, Literatur, Games und Politik.",
+			},
 		});
-		this.podcast = null;
-		this.ondemand = null;
+		this.ondemand = new $.CastMediaItem({
+			title : "On Demand",
+			imageUrl : "http://fm4.orf.at/v2static/images/fm4_logo.jpg",
+			contentInfo: {
+				uid : 'OnDemand',
+				description : "Ausgew&auml;hlte Sendungen stehen f&uuml;r sieben Tage im Stream zur Verf&uuml;gung.",
+			},
+		});
+		this.podcast = new $.CastMediaItem({
+			title : "Podcast",
+			imageUrl : "http://fm4.orf.at/v2static/images/fm4_logo.jpg",
+			contentInfo: {
+				uid : 'Podcast',
+			},
+		});
+
+		this.playlist.add(this.liveStream);
+		this.playlist.add(this.ondemand, this.liveStream);
+		this.playlist.add(this.podcast, this.liveStream);
 	};
 
 
@@ -123,6 +145,7 @@
 			'4LRMon',
 			'4DKMSun',
 			'4SOPMon',
+			'4EXTue',
 			// '4UTAMon' ,
 			// '4UTATue' ,
 			// '4UTAWed' ,
@@ -146,14 +169,8 @@
 			//"http://static.orf.at/fm4/podcast/fm4_comedy.xml",
 		],
 
-		getPodcastInfo : function(podcast, clear) {
+		getPodcastInfo : function(podcast) {
 			var that = this;
-			if (this.podcast == null || clear) {
-				this.podcast = new CastSource({
-					title: "Podcasts"
-				});
-				this.content.addChild(this.podcast);
-			}
 			var pods = podcast;
 			if (!(pods instanceof Array)) {
 				pods = [pods];
@@ -172,36 +189,39 @@
 		},
 
 		_onPodcastInfo : function(response) {
+			var that = this;
 			var feed = $(response.responseData.xmlString);
-			var pod = new CastSource({
-				title : $("channel>title", feed).text(),
-				text : $("channel>description", feed).text(),
+			var title = $("channel>title", feed).text();
+			if (!title) title = "";
+			var pod = new $.CastMediaItem({
+				title : title,
+				contentInfo : {
+					uid : title.replace(/\s+/g, ''),
+					description : $("channel>description", feed).text(),
+				},
 			});
+			this.playlist.add(pod, this.podcast);
 			$.each($("channel>item", feed), function(idx, val) {
-				var itm = new CastSource({
+				var itm = new $.CastMediaItem({
 					title : $("title", val).text(),
-					url : $("enclosure", val).attr("url"),
-					text :  $("description", val).text(),
-					logo : $("itunes\\:image").attr("href"),
-					date : moment($("pubdate", val).text()),
+					src : $("enclosure", val).attr("url"),
+					imageUrl : $("itunes\\:image", feed).attr("href"),
+					contentInfo : {
+						uid : $("guid", val).text(),
+						description :  $("description", val).text(),
+						date : moment($("pubdate", val).text()),
+					}
 				});
-				pod.addChild(itm, true);
+				that.playlist.add(itm, pod);
 			});
-			this.podcast.addChild(pod);
 			this.pcToFetch--;
 			if (this.pcToFetch <= 0) {
-				$(this).trigger("sender-new-content", this.content);
+				$(this).trigger("sender-new-content", this.playlist);
 			}
 		},
 
-		getOnDemandInfo : function( key, clear ) {
+		getOnDemandInfo : function( key ) {
 			var that = this;
-			if (this.ondemand == null || clear) {
-				this.ondemand = new CastSource({
-					title: "On Demand",
-				});
-				this.content.addChild(this.ondemand);
-			}
 			var showurl = '//audioapi.orf.at/fm4/json/2.0/playlist/' + key;
 			$.ajax({
 				url : showurl,
@@ -227,24 +247,31 @@
 				if (val.description) {
 					description += val.description;
 				}
-				var sendung = new CastSource({
+				var sendung = new $.CastMediaItem({
 					title : val.title,
-					text : description,
-					date : moment(val.dateISO),
+					contentInfo : {
+						uid : val.alias,
+						text : description,
+						date : moment(val.dateISO),
+					},
 				});
-				that.ondemand.addChild(sendung);
+				that.playlist.add(sendung, that.ondemand);
 				$.each(val.streams, function(sidx, sval) {
 					var time = moment(sval.startISO).format("HH:mm") + " - " +
 						moment(sval.endISO).format("HH:mm");
-					var stream = new CastSource({
+					var stream = new $.CastMediaItem({
 						title : time,
-						date : moment(sval.startISO),
-						url : sval.loopStreamId,
+						src : url + sval.loopStreamId,
+						contentInfo : {
+							uid : sval.alias,
+							description : description,
+							date : moment(sval.startISO),
+						}
 					});
-					sendung.addChild(stream);
+					that.playlist.add(stream, sendung);
 				});
 			});
-			$(this).trigger("sender-new-content", this.content);
+			$(this).trigger("sender-new-content", this.playlist);
 		},
 
 	};
