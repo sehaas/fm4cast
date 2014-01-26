@@ -21,27 +21,26 @@ It's not finished yet. You can see here what is working and what not.
 
 ### Working ###
 
-* *sender* start app on selected chromecast
-* *sender* reconnect on page reload
-* *sender* fetch media information form FM4
+* [sender] start app on selected chromecast
+* [sender] reconnect on page reload
+* [sender] fetch media information form FM4
 	* live stream
 	* on demand shows (I'm not sure if I got everything)
 	* podcasts
-* *sender* seek position (shows and podcast only)
-* *sender* display information of current media (if available)
-* *sender* pause/resume
-
-* *receiver* play selected media
-* *receiver* fetch trackservice
-* *receiver* fetch artwork of current song
+* [sender] seek position (shows and podcast only)
+* [sender] display information of current media (if available)
+* [sender] pause/resume
+* [receiver] play selected media
+* [receiver] fetch trackservice
+* [receiver] fetch artwork of current song
 
 ### NOT Working ###
 
-* *sender* clean layout
+* [sender] clean layout
 	* select chromecast
 	* player
 	* playlist
-
-* *receiver* display trackservice only while playing live stream
-* *receiver* display information for on demand shows or podcast
+* [sender] cache playlist (fetch only every 3h)
+* [receiver] display trackservice only while playing live stream
+* [receiver] display information for on demand shows or podcast
 
