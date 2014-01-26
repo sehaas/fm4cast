@@ -42,13 +42,42 @@
 			return null;
 		},
 
-		addChild : function(child) {
+		addChild : function(child, usedate) {
 			if (!child) {
 				return;
 			}
 			child.parent = this;
 			this.children.push(child);
-		}
+			if (usedate) {
+				this.children.sort(this._cmpDate);
+			}else{
+				this.children.sort(this._cmpTitle);
+			}
+		},
+
+		_cmpTitle : function(a,b) {
+			var c = a.title.localeCompare(b.title);
+			if (c != 0) {
+				return c;
+			}
+			if (a.date == b.date) {
+				return 0;
+			} else if (a.date < b.date) {
+				return  -1;
+			} else {
+				return 1;
+			}
+		},
+
+		_cmpDate : function(a,b) {
+			if (a.date == b.date) {
+				return a.title.localeCompare(b.title);
+			} else if (a.date < b.date) {
+				return  1;
+			} else {
+				return -1;
+			}
+		},
 	},
 
 	$.FM4Sender = function() {
@@ -155,7 +184,7 @@
 					text :  $("description", val).text(),
 					date : moment($("pubdate", val).text()),
 				});
-				pod.addChild(itm);
+				pod.addChild(itm, true);
 			});
 			this.podcast.addChild(pod);
 			this.pcToFetch--;
