@@ -219,7 +219,6 @@
 				data = [data];
 			}
 			$.each(data, function(idx, val) {
-				// TODO: add more than stream0
 				var description = "";
 				if (val.subtitle) {
 					description += val.subtitle + '\n';
@@ -231,10 +230,19 @@
 				var sendung = new CastSource({
 					title : val.title,
 					text : description,
-					url : url + val.streams[0].loopStreamId,
-					date : moment(val.streams[0].startISO),
+					date : moment(val.dateISO),
 				});
 				that.ondemand.addChild(sendung);
+				$.each(val.streams, function(sidx, sval) {
+					var time = moment(sval.startISO).format("HH:mm") + " - " +
+						moment(sval.endISO).format("HH:mm");
+					var stream = new CastSource({
+						title : time,
+						date : moment(sval.startISO),
+						url : sval.loopStreamId,
+					});
+					sendung.addChild(stream);
+				});
 			});
 			$(this).trigger("sender-new-content", this.content);
 		},
