@@ -182,6 +182,7 @@
 					title : $("title", val).text(),
 					url : $("enclosure", val).attr("url"),
 					text :  $("description", val).text(),
+					logo : $("itunes\\:image").attr("href"),
 					date : moment($("pubdate", val).text()),
 				});
 				pod.addChild(itm, true);
