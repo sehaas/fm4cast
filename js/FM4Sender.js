@@ -153,7 +153,7 @@
 					title : $("title", val).text(),
 					url : $("enclosure", val).attr("url"),
 					text :  $("description", val).text(),
-					date : $("pubdate", val).text(),
+					date : moment($("pubdate", val).text()),
 				});
 				pod.addChild(itm);
 			});
@@ -202,7 +202,7 @@
 					title : val.title,
 					text : description,
 					url : url + val.streams[0].loopStreamId,
-					date : val.streams[0].startISO,
+					date : moment(val.streams[0].startISO),
 				});
 				that.ondemand.addChild(sendung);
 			});

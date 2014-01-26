@@ -16,6 +16,7 @@
 	<title>FM4 chromecast Player</title>
 	<script src="../js/jquery.min.js"></script>
 	<script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="../js/moment.min.js"></script>
 	<script src="../js/jsrender.js"></script>
 
 	<script src="../js/apikey.js"></script><!-- make sure your apikeyfile is there -->
@@ -87,6 +88,7 @@
 		<div class="accordion">
 			<h3>
 				{{:title}}
+				{{if date}}- {{:date.format('DD.MM.YYYY')}}{{/if}}
 				{{if url }}
 					<button data-media="{{:url}}">play</button>
 				{{/if}}
