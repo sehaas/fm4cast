@@ -33,14 +33,15 @@
 			}, this));
 
 			this.tag.get(0).addEventListener("loadedmetadata", function() {
-				that._metaDataLoaded.call(that);
+				that._metaDataLoaded.call(that, that.remoteMedia);
 			});
 
 			this.receiver.start();
 		},
 
-		_metaDataLoaded : function() {
-			console.log(this.remoteMedia.getContentInfo().description);
+		_metaDataLoaded : function(media) {
+			// FIXME: trigger callback
+			$("#nowplaying").text(media.getTitle());
 		}
 	};
 }(jQuery));

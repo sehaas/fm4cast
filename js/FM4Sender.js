@@ -84,7 +84,7 @@
 	$.FM4Sender = function() {
 		this.playlist = new PlayList();
 		this.liveStream = new $.CastMediaItem({
-			title : "Radio FM4",
+			title : "Radio FM4 Live Stream",
 			src : "http://mp3stream1.apasf.apa.at:8000/;",
 			imageUrl : "http://fm4.orf.at/v2static/images/fm4_logo.jpg",
 			contentInfo: {

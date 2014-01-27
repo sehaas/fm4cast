@@ -16,6 +16,10 @@ body {
 	font-family: Arial, sans-serif;
 }
 
+.debug, .debug * {
+	outline: solid 1px red;
+}
+
 #logo { 
 	position: absolute;
 	top: 50px;
@@ -36,7 +40,7 @@ body {
 #nowplaying {
 	position: absolute;
 	font-size: 24px;
-	top: 250px;
+	top: 230px;
 	left: 50px;
 }
 
@@ -58,9 +62,9 @@ body {
 .tracks {
 	font-size: 24px;
 	height: 400px;
-	max-width: 850px;
+	width: 850px;
 	position: absolute;
 	left: 50px;
-	bottom: 50px;
+	top: 300px;
 	overflow: hidden;
 }
