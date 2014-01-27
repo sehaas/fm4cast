@@ -25,19 +25,32 @@
 <body>
 	<audio id="audioTag"></audio>
 	<div id="logo">
-		FM4 chromecast
-		<div id="artwork"></div>
-		<div id="uhrzeit"></div>
-		<div id="tracks"></div>
+		Radio FM4
+	</div>
+	<div id="nowplaying"></div>
+	<div id="uhrzeit"></div>
+	<div id="tabs">
+		<div id="live" class="tab">
+			<div class="artwork"></div>
+			<div class="tracks"></div>
+		</div>
+		<div id="ondemand" class="tab">
+			<div class="artwork"></div>
+			<div class="description"></div>
+		</div>
+		<div id="podcast" class="tab">
+			<div class="artwork"></div>
+			<div class="description"></div>
+		</div>
 	</div>
 
 	<script type="text/javascript">
 		$(function() {
 			var fmrc = window.fmrc = new $.FM4Receiver($("#audioTag"));
 			fmrc.start();
-			var tracks = window.tracks = new $.TrackService($("#tracks"));
+			var tracks = window.tracks = new $.TrackService($("#live .tracks"));
 			tracks.start();
-			var artwork = window.artwork = new $.LastFMArtwork($("#artwork"));
+			var artwork = window.artwork = new $.LastFMArtwork($("#live .artwork"));
 			artwork.start();
 		});
 
