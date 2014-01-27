@@ -33,7 +33,7 @@
 			}, this));
 
 			this.tag.get(0).addEventListener("loadedmetadata", function() {
-				that._metaDataLoaded.bind(that);
+				that._metaDataLoaded.call(that);
 			});
 
 			this.receiver.start();
