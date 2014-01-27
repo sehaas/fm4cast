@@ -20,7 +20,7 @@
 	$.FM4Receiver.prototype = {
 
 		start : function() {
-
+			var that = this;
 			this.receiver = new cast.receiver.Receiver(
 				fm4c.config.apikey, [cast.receiver.RemoteMedia.NAMESPACE], "", 5);
 
@@ -32,8 +32,16 @@
 				this.remoteMedia.setMediaElement(this.tag.get(0));
 			}, this));
 
+			this.tag.addEventListener("loadedmetadata", function() {
+				that._metaDataLoaded.bind(that);
+			});
+
 			this.receiver.start();
 		},
+
+		_metaDataLoaded : function() {
+			console.log(this.remoteMedia.getContentInfo().description);
+		}
 	};
 }(jQuery));
 

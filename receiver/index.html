@@ -33,11 +33,11 @@
 
 	<script type="text/javascript">
 		$(function() {
-			var fmrc = new $.FM4Receiver($("#audioTag"));
+			var fmrc = window.fmrc = new $.FM4Receiver($("#audioTag"));
 			fmrc.start();
-			var tracks = new $.TrackService($("#tracks"));
+			var tracks = window.tracks = new $.TrackService($("#tracks"));
 			tracks.start();
-			var artwork = new $.LastFMArtwork($("#artwork"));
+			var artwork = window.artwork = new $.LastFMArtwork($("#artwork"));
 			artwork.start();
 		});
 
