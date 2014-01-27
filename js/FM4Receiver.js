@@ -32,7 +32,7 @@
 				this.remoteMedia.setMediaElement(this.tag.get(0));
 			}, this));
 
-			this.tag.addEventListener("loadedmetadata", function() {
+			this.tag.get(0).addEventListener("loadedmetadata", function() {
 				that._metaDataLoaded.bind(that);
 			});
 
