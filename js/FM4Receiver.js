@@ -56,7 +56,7 @@
 					$("#tabs .description").text(ci.description);
 					$(this).trigger("trackservice-stop");
 					if (media.getImageUrl()) {
-						$("#tabs .artwork").css("background-img", "url('{0}')".format(media.getImageUrl()));
+						$("#tabs .artwork").css("background-image", "url('{0}')".format(media.getImageUrl()));
 					}
 					break;
 			}
