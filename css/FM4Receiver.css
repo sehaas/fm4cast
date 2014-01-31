@@ -59,7 +59,8 @@ body {
 	background-repeat: no-repeat;
 }
 
-.tracks {
+.tracks,
+.description {
 	font-size: 24px;
 	height: 400px;
 	width: 850px;
