@@ -89,6 +89,7 @@
 			imageUrl : "http://fm4.orf.at/v2static/images/fm4_logo.jpg",
 			contentInfo: {
 				uid : 'LiveStream',
+				contentType : 0,
 				description : "fm4.ORF.at: Berichte und Kommentare zu Musik, Popkultur, Film, Literatur, Games und Politik.",
 			},
 		});
@@ -97,6 +98,7 @@
 			imageUrl : "http://fm4.orf.at/v2static/images/fm4_logo.jpg",
 			contentInfo: {
 				uid : 'OnDemand',
+				contentType : 1,
 				description : "Ausgew&auml;hlte Sendungen stehen f&uuml;r sieben Tage im Stream zur Verf&uuml;gung.",
 			},
 		});
@@ -105,6 +107,7 @@
 			imageUrl : "http://fm4.orf.at/v2static/images/fm4_logo.jpg",
 			contentInfo: {
 				uid : 'Podcast',
+				contentType : 2,
 			},
 		});
 
@@ -146,12 +149,12 @@
 			'4DKMSun',
 			'4SOPMon',
 			'4EXTue',
-			// '4UTAMon' ,
-			// '4UTATue' ,
-			// '4UTAWed' ,
-			// '4UTAThu' ,
-			// '4UTAFris' ,
-			// '4DZWed' ,
+			'4UTAMon',
+			'4UTATue',
+			'4UTAWed',
+			'4UTAThu',
+			'4UTAFri',
+			'4DZWed',
 		],
 
 		getPodcasts : [
@@ -210,6 +213,7 @@
 						uid : $("guid", val).text(),
 						description :  $("description", val).text(),
 						date : moment($("pubdate", val).text()),
+						contentType : 2,
 					}
 				});
 				that.playlist.add(itm, pod);
@@ -266,6 +270,7 @@
 							uid : sval.alias,
 							description : description,
 							date : moment(sval.startISO),
+							contentType : 1,
 						}
 					});
 					that.playlist.add(stream, sendung);

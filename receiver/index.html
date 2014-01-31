@@ -49,9 +49,16 @@
 			var fmrc = window.fmrc = new $.FM4Receiver($("#audioTag"));
 			fmrc.start();
 			var tracks = window.tracks = new $.TrackService($("#live .tracks"));
-			tracks.start();
+			// tracks.start();
 			var artwork = window.artwork = new $.LastFMArtwork($("#live .artwork"));
 			artwork.start();
+
+			$(fmrc).on("trackservice-start", function() {
+				tracks.start();
+			});
+			$(fmrc).on("trackservice-stop", function() {
+				tracks.stop();
+			});
 		});
 
 

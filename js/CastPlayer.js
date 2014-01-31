@@ -17,6 +17,7 @@
 		this.contentInfo = {
 			uid : undefined,
 			description : undefined,
+			contentType: undefined,
 			date : undefined,
 		};
 		$.extend(this, opts);

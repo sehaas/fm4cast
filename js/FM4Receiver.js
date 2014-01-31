@@ -7,7 +7,7 @@
  *
  */
 
-( function( $ ) {
+;( function( $ ) {
 
 
 	$.FM4Receiver = function(element) {
@@ -40,23 +40,45 @@
 		},
 
 		_metaDataLoaded : function(media) {
-			// FIXME: trigger callback
+			var ci = media.getContentInfo();
+			if (!ci) return;
+
+
 			$("#nowplaying").text(media.getTitle());
+			switch(ci.contentType) {
+				case 0:
+					$(this).trigger("trackservice-start");
+				case 1:
+				case 2:
+					$("#tabs .description").text(ci.description);
+					$(this).trigger("trackservice-stop");
+					if (media.getImageUrl()) {
+						$("#tabs .artwork").css("background-img", "url('{0}')".format(media.getImageUrl()));
+					}
+					break;
+			}
 		}
 	};
 }(jQuery));
 
 
-( function( $ ) {
+;( function( $ ) {
 
 	$.TrackService = function(element) {
 		this.tag = (element instanceof $) ? element : $(element);
+		this.timerId = null;
 	};
 
 	$.TrackService.prototype = {
 
 		start : function() {
 			this._reloadTrackService();
+		},
+
+		stop : function() {
+			if (this.timerId) {
+				window.clearTimeout(this.timerId);
+			}
 		},
 
 		_reloadTrackService : function() {
@@ -66,14 +88,14 @@
 				"cache": false,
 				"jsonp": "callback",
 				"jsonpCallback": "renderTracklist",
-				"success": $.proxy(this.parseTrackService, this),
+				"success": $.proxy(this._parseTrackService, this),
 			});
 
 
-			window.setTimeout($.proxy(this._reloadTrackService, this), 30*1000);
+			this.timerId = window.setTimeout($.proxy(this._reloadTrackService, this), 30*1000);
 		},
 
-		parseTrackService : function(data) {
+		_parseTrackService : function(data) {
 			$tmp = $("<div></div>");
 			$tmp.html(data);
 			var ts = [];
@@ -84,10 +106,10 @@
 				ts[lidx].artist = $(".artist", lval).text();
 			});
 
-			this.renderTrackService(ts);
+			this._renderTrackService(ts);
 		},
 
-		renderTrackService : function(list) {
+		_renderTrackService : function(list) {
 			this.tag.empty();
 			var current = true;
 			$.each(list, $.proxy(function(idx, val) {
