@@ -43,13 +43,16 @@
 			var ci = media.getContentInfo();
 			if (!ci) return;
 
-
+			$("#tabs .tab").hide();
 			$("#nowplaying").text(media.getTitle());
 			switch(ci.contentType) {
 				case 0:
+					$("#live").show();
 					$(this).trigger("trackservice-start");
+					break;
 				case 1:
 				case 2:
+					$("#ondemand").show();
 					$("#tabs .description").text(ci.description);
 					$(this).trigger("trackservice-stop");
 					if (media.getImageUrl()) {
