@@ -45,6 +45,7 @@
 
 			$("#tabs .tab").hide();
 			$("#nowplaying").text(media.getTitle());
+			$("#tabs .artwork").css("background-image", null);
 			switch(ci.contentType) {
 				case 0:
 					$("#live").show();
