@@ -2,6 +2,12 @@
 
 This Chrome app allows you to stream FM4 media (live stream, on-demand shows & podcasts) to your chromecast.
 
+**Update [12.02.2014]**
+Google released a public api. This app uses the beta cast-api. After rewriting the code, no whitelisting is requred.
+FM4 also released their new "7tage" ondemand section which gives us access to even more shows within the last 7 days.
+
+
+
 
 ## Setup ##
 
