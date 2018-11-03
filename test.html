@@ -6,6 +6,7 @@
 	<title>FM4cast</title>
 	<script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
 	<script type="text/javascript" src="https://d3js.org/d3-time.v1.min.js"></script>
+	<script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
 
 	<style type="text/css">
 		.chart {
@@ -28,9 +29,9 @@
 			height: 100%;
 			width: 100%;
 			display: table;
-			background: #d0d0d0;
+			background: #c1c1c1;
 			outline: solid 0.2vw #ffe501;
-			font-size: 1vw;
+			font-size: 1.1vw;
 		}
 
 		.itemText {
@@ -54,9 +55,16 @@
 
 
 		.bar_wrapper {
-			width: calc(100%-10px)	;
+			width: calc(100% - 1vw)	;
 			height: 0;
-			padding-bottom: calc(100%/875*217);
+			padding-bottom: 24.8%; /* calc(100%/875*217); */
+			position: relative;
+		}
+
+		.bar_wrapper_half {
+			width: calc(100% - 1vw)	;
+			height: 0;
+			padding-bottom: 18%; /* calc(100%/875*217); */
 			position: relative;
 		}
 
@@ -106,7 +114,7 @@
 
 		.app {
 			width: 90vw;
-			margin: auto;
+			margin: 2vw auto;
 		}
 
 		#showInfo {
@@ -129,7 +137,7 @@
 			margin: -0.5vw 0;
 		}
 		#timeline, .bar_wrapper, #showInfo {
-			border: solid 0.5vw #ffea00;
+			border: solid 0.5vw #ffe501;
 		}
 		#artwork {
 			width: 15vw;
@@ -142,11 +150,48 @@
 			background-size: contain;
 			background-repeat: no-repeat;
 			background-position: 50%;
+			color:white;
 		}
 		.nowMarker {
 			stroke: #ffe501;
 			fill: #ffe501;
 			stroke-width: 0.2vw;
+		}
+
+		.itemDiv div {
+			display: -webkit-box;
+			width: 100%;
+			max-height: 50%;
+			margin: 0.2vw;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp:3;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			position:absolute;
+			text-align:center;
+		}
+
+		#begleitText p {
+			display: -webkit-box;
+			margin: 0.2vw 0;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 4;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.itemDiv .song {
+			font-weight: bold;
+			bottom:50%;
+		}
+
+		.itemDiv .artist {
+			top:50%;
+		}
+		.artworkOverlay {
+			background-color: rgba(0, 0, 0, 0.7);
+			height: 100%;
+			width: 100%;
 		}
 	</style>
 </head>
@@ -161,12 +206,18 @@
 					<div class="mode">jetzt live</div>
 					<div id="showTitle"></div>
 				</div>
-				<div id="artwork">
+				<div id="artwork" style="display:none;">
+					<div class="artworkOverlay">
+						<div id="cSong"></div>
+						<div id="cArtist"></div>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<div id="timeline" class=""></div>
+		<div class="bar_wrapper_half">
+			<div id="timeline" class="bar-item"></div>
+		</div>
 		<div id="showInfo">
 			<div id="showTitle2"></div>
 			<div id="begleitText"></div>
@@ -176,55 +227,78 @@
 	<script type="text/javascript">
 		//data
 
+		function isDebug() {
+			return window.location.search === "?debug";
+		}
+
 		function getNow() {
-			// return new Date();
-			return new Date(1541171851000);
+			return isDebug()
+				? new Date(1541171851000)
+				: new Date();
 		}
 
 		function getDataUrl() {
-			// return 'https://audioapi.orf.at/fm4/api/json/current/live';
-			return '/live.json';
+			return isDebug()
+				? '/live.json'
+				: 'https://audioapi.orf.at/fm4/api/json/current/live';
 		}
 
-		function init() {
+		function bestImage(imageData) {
+			if (!imageData || !imageData.versions) {
+				return '';
+			}
+			return imageData.versions.sort((a,b) => b.width - a.width)[0].path;
+		}
 
-			var lanes = ["Tracks"],
-				laneLength = lanes.length;
+		function getTimeRange(date) {
+			return [d3.timeMinute.offset(date, -20), d3.timeMinute.offset(date, 10)];
+		}
 
-			fetch(getDataUrl())
-				.then(function(r) { return r.json(); })
-				.then(function(json) {
+		function uniqueItem(value, index, self) {
+			return self.findIndex((e) => e.id === value.id) === index;
+		}
 
+		var items = [];
+
+		async function reloadData(force) {
+			// if (!force && new Date().getMinutes() % 5 != 0) {
+			// 	return json;
+			// }
+			var response = await fetch(getDataUrl());
+			json = await response.json();
 			var now = getNow();
-			var items = [];
 			json.forEach(function(show) {
 				items = items.concat(show.items);
 				if (now > show.start && now < show.end) {
-					document.getElementById("show").style.backgroundImage = "url(" + show.images[0].versions[0].path + ")"; // FIXME versions
+					document.getElementById("show").style.backgroundImage = "url(" + bestImage(show.images[0]) + ")";
 					document.getElementById("showTitle").innerText = show.title;
 					document.getElementById("showTitle2").innerText = show.title;
 					document.getElementById("begleitText").innerHTML = show.subtitle;
 				}
 			});
+			items = items.filter(uniqueItem);
+			return items;
+		}
 
 
-			var m = [20, 15, 15, 20], //top right bottom left
+		async function init() {
+			var now = getNow();
+			var m = [0, 0, 0, 0], //top right bottom left
 				w = document.getElementById('timeline').clientWidth - m[1] - m[3],
-				h = 200 - m[0] - m[2],
+				h = document.getElementById('timeline').clientHeight - m[0] - m[2],
 				mainHeight = h - 50;
+
+			items = await reloadData(true);
 
 			//scales
 			var x1 = d3.scaleTime()
-				.domain([d3.timeMinute.offset(now, -20), d3.timeMinute.offset(now, 10)])
+				.domain(getTimeRange(now))
 				.range([0, w]);
 			window.x1 = x1;
 			var axis = d3.axisBottom(x1);
 			axis.ticks(d3.timeMinute.every(1));
 			axis.tickFormat(d3.timeFormat("%H:%M"))
-			axis.tickSize('20');
-			var y1 = d3.scaleLinear()
-				.domain([0, laneLength])
-				.range([0, mainHeight]);
+			axis.tickSize(h / 12);
 
 			var chart = d3.select("#timeline")
 				.append("svg")
@@ -233,7 +307,6 @@
 				.attr("class", "chart");
 
 			var main = chart.append("g")
-				.attr("transform", "translate(" + m[3] + "," + m[0] + ")")
 				.attr("width", w)
 				.attr("height", mainHeight)
 				.attr("class", "main");
@@ -246,41 +319,49 @@
 			var itemRects = main.append("g")
 				.attr("id", "songs");
 
-			var symbol = d3.symbol().size([75])
+			var symbol = d3.symbol().size([h])
 			var line = d3.line()
 				.x(function(d) { return x1(d['x']); })
-				.y(function(d) { return y1(d['y']); });
+				.y(function(d) { return d['y']; });
 			main.append('path')
 				.attr('class','nowMarker')
-				.attr('d', line([{x:now, y:0},{x:now, y:1.3}]));
+				.attr('d', line([{x:now, y: 5 },{x:now, y:h}]));
 			main.append('path')
 				.attr('class','nowMarker')
 				.attr('d', symbol.type(d3.symbolTriangle))
 				.attr('x', x1(now))
-				.attr('transform', 'translate('+x1(now)+',0), scale(1,-1)');
+				.attr('transform', 'translate('+x1(now)+', 0), scale(1,-1)');
 
-			display();
-			window.setInterval(display, 5000);
+			display(true);
+			window.setInterval(display, 1000);
+			window.setInterval(reloadData, 60 * 1000);
 
-			function display() {
+			function display(force) {
+				var now = getNow();
+				if (!force && now.getSeconds() % 5 != 0) {
+					return;
+				}
+
 				var rects, labels,
-					now = getNow(),
 					minExtent = x1.domain()[0].getTime(),
 					maxExtent = x1.domain()[1].getTime(),
 					visItems = items.filter(function(d) {
-						return d.type == 'M' && d.start < maxExtent && d.end > minExtent;
+						return  d.end > minExtent;
 					});
-				var currentSong = visItems.find(function(i) { return i.start < now.getTime() && i.end > now.getTime(); });
+				var currentSong = visItems.find(function(i) { return i.type == 'M' && i.start < now.getTime() && i.end > now.getTime(); });
 				items = visItems;
 
+				var artwork = document.getElementById('artwork');
 				if (currentSong) {
-					document.getElementById('artwork').style.backgroundImage = 'url('+currentSong.images[0].versions[0].path+')';
-					document.getElementById('artwork').style.display = 'block';
+					artwork.style.backgroundImage = 'url(' + bestImage(currentSong.images[0]) + ')';
+					artwork.style.display = 'block';
+					document.getElementById('cSong').innerText = currentSong.title;
+					document.getElementById('cArtist').innerText = currentSong.interpreter;
 				} else {
-					document.getElementById('artwork').style.display = 'none';
+					artwork.style.display = 'none';
 				}
 
-				x1.domain([d3.timeMinute.offset(now, -20), d3.timeMinute.offset(now, 10)]);
+				x1.domain(getTimeRange(now));
 
 				main.select("#tAxis").call(axis);
 				var ticks = d3.selectAll(".tick text");
@@ -302,30 +383,51 @@
 						return x1(Math.max(new Date(d.start), minExtent));
 					})
 					.attr("y", function(d) {
-						return y1(0) + 10;
+						return h / 5;
 					})
 					.attr("width", function(d) {
 						return x1(new Date(d.end)) - x1(new Date(d.start));
 					})
 					.attr("height", function(d) {
-						return .8 * y1(1);
+						return h * 0.7;
 					})
 					.attr("text-anchor", "start")
 					.append("xhtml:div")
 					.attr('class', 'itemDiv')
-					.append('xhtml:div')
-					.attr('class', 'itemText')
 					.html(function(d) {
-						return "<b>" + d.title + "</b><br>" + d.interpreter;
+						return "<div class='song'>" + (d.title || '') + "</div><div class='artist'>" + (d.interpreter || '') + "</div>";
 					});
 
 				labels.exit().remove();
-
 			}
-		});
 		}
 
 		init();
+
+	</script>
+
+	<audio class="castMediaElement"></audio>
+
+	<script type="text/javascript">
+		const context = cast.framework.CastReceiverContext.getInstance();
+
+		const playerManager = context.getPlayerManager();
+		playerManager.addEventListener(cast.framework.events.category.CORE,
+			event => {
+				console.log(event);
+			});
+
+			const playerData = {};
+			const playerDataBinder = new cast.framework.ui.PlayerDataBinder(playerData);
+			playerDataBinder.addEventListener(
+				cast.framework.ui.PlayerDataEventType.STATE_CHANGED,
+				e => {
+					console.log(e);
+				});
+
+		const options = new cast.framework.CastReceiverOptions();
+		context.start(options);
+
 	</script>
 </body>
 
