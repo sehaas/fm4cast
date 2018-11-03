@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>FM4cast</title>
+	<script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+	<script type="text/javascript" src="https://d3js.org/d3-time.v1.min.js"></script>
+
+	<style type="text/css">
+		.chart {
+			shape-rendering: crispEdges;
+			background-color: black;
+		}
+
+		body {
+			background-color: #414141;
+			color: black;
+			font-family: Verdana;
+		}
+
+		.miniItem0 {
+			fill: darksalmon;
+			stroke-width: 6;
+		}
+
+		.itemDiv {
+			height: 100%;
+			width: 100%;
+			display: table;
+			background: #d0d0d0;
+			outline: solid 0.2vw #ffe501;
+			font-size: 1vw;
+		}
+
+		.itemText {
+			display: table-cell;
+			vertical-align: middle;
+			padding: 0.5vw;
+		}
+
+		#tAxis {
+			color: white;
+			font-size: 1vw;
+		}
+
+		#tAxis .domain {
+			stroke: none;
+		}
+
+		#tAxis .tick line {
+			stroke-width: 0.2vw;
+		}
+
+
+		.bar_wrapper {
+			width: calc(100%-10px)	;
+			height: 0;
+			padding-bottom: calc(100%/875*217);
+			position: relative;
+		}
+
+		.bar-item {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			border: none;
+		}
+
+		div#show {
+			background-size: contain;
+			background-position: 50%;
+			background-repeat: no-repeat;
+		}
+
+		img.logo {
+			width: 10vw;
+			margin: 2vw;
+		}
+
+		.current-caption {
+			background-color: rgba(0, 0, 0, 0.23);
+			display: inline-block;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			padding: 0.5vw;
+			font-weight: bold;
+			text-transform: uppercase;
+			color: white;
+		}
+
+		.mode {
+			padding: 0.5vw;
+			font-size: 2vw;
+		}
+
+		#showTitle {
+			padding: 0 0.5vw;
+			font-size: 3vw;
+		}
+
+		.app {
+			width: 90vw;
+			margin: auto;
+		}
+
+		#showInfo {
+			padding: 1vw;
+			background: #c1c1c1;
+			color: black;
+			font-size: 1.5vw;
+		}
+
+		#begleitText p {
+			margin: 1vw 0;
+		}
+
+		#showTitle2 {
+			font-weight: bold;
+			text-transform: uppercase;
+		}
+
+		#timeline {
+			margin: -0.5vw 0;
+		}
+		#timeline, .bar_wrapper, #showInfo {
+			border: solid 0.5vw #ffea00;
+		}
+		#artwork {
+			width: 15vw;
+			height: 15vw;
+			border: 1vw #c1c1c1a0 solid;
+			position: absolute;
+			right: 0;
+			top: 0;
+			margin: 2vw;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: 50%;
+		}
+		.nowMarker {
+			stroke: #ffe501;
+			fill: #ffe501;
+			stroke-width: 0.2vw;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="app">
+		<div class="bar_wrapper">
+			<div id="show" class="bar-item">
+				<img class="logo" src="//tubestatic.orf.at/mojo/1_3/storyserver/tube/fm4/images/fm4.logo.svg" alt="FM4-Logo">
+				<div class="current-caption">
+					<div class="mode">jetzt live</div>
+					<div id="showTitle"></div>
+				</div>
+				<div id="artwork">
+				</div>
+			</div>
+		</div>
+
+		<div id="timeline" class=""></div>
+		<div id="showInfo">
+			<div id="showTitle2"></div>
+			<div id="begleitText"></div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		//data
+
+		function getNow() {
+			// return new Date();
+			return new Date(1541171851000);
+		}
+
+		function getDataUrl() {
+			// return 'https://audioapi.orf.at/fm4/api/json/current/live';
+			return '/live.json';
+		}
+
+		function init() {
+
+			var lanes = ["Tracks"],
+				laneLength = lanes.length;
+
+			fetch(getDataUrl())
+				.then(function(r) { return r.json(); })
+				.then(function(json) {
+
+			var now = getNow();
+			var items = [];
+			json.forEach(function(show) {
+				items = items.concat(show.items);
+				if (now > show.start && now < show.end) {
+					document.getElementById("show").style.backgroundImage = "url(" + show.images[0].versions[0].path + ")"; // FIXME versions
+					document.getElementById("showTitle").innerText = show.title;
+					document.getElementById("showTitle2").innerText = show.title;
+					document.getElementById("begleitText").innerHTML = show.subtitle;
+				}
+			});
+
+
+			var m = [20, 15, 15, 20], //top right bottom left
+				w = document.getElementById('timeline').clientWidth - m[1] - m[3],
+				h = 200 - m[0] - m[2],
+				mainHeight = h - 50;
+
+			//scales
+			var x1 = d3.scaleTime()
+				.domain([d3.timeMinute.offset(now, -20), d3.timeMinute.offset(now, 10)])
+				.range([0, w]);
+			window.x1 = x1;
+			var axis = d3.axisBottom(x1);
+			axis.ticks(d3.timeMinute.every(1));
+			axis.tickFormat(d3.timeFormat("%H:%M"))
+			axis.tickSize('20');
+			var y1 = d3.scaleLinear()
+				.domain([0, laneLength])
+				.range([0, mainHeight]);
+
+			var chart = d3.select("#timeline")
+				.append("svg")
+				.attr("width", w + m[1] + m[3])
+				.attr("height", h + m[0] + m[2])
+				.attr("class", "chart");
+
+			var main = chart.append("g")
+				.attr("transform", "translate(" + m[3] + "," + m[0] + ")")
+				.attr("width", w)
+				.attr("height", mainHeight)
+				.attr("class", "main");
+
+			main.append("g")
+				.attr('id', 'tAxis')
+				.call(axis);
+
+
+			var itemRects = main.append("g")
+				.attr("id", "songs");
+
+			var symbol = d3.symbol().size([75])
+			var line = d3.line()
+				.x(function(d) { return x1(d['x']); })
+				.y(function(d) { return y1(d['y']); });
+			main.append('path')
+				.attr('class','nowMarker')
+				.attr('d', line([{x:now, y:0},{x:now, y:1.3}]));
+			main.append('path')
+				.attr('class','nowMarker')
+				.attr('d', symbol.type(d3.symbolTriangle))
+				.attr('x', x1(now))
+				.attr('transform', 'translate('+x1(now)+',0), scale(1,-1)');
+
+			display();
+			window.setInterval(display, 5000);
+
+			function display() {
+				var rects, labels,
+					now = getNow(),
+					minExtent = x1.domain()[0].getTime(),
+					maxExtent = x1.domain()[1].getTime(),
+					visItems = items.filter(function(d) {
+						return d.type == 'M' && d.start < maxExtent && d.end > minExtent;
+					});
+				var currentSong = visItems.find(function(i) { return i.start < now.getTime() && i.end > now.getTime(); });
+				items = visItems;
+
+				if (currentSong) {
+					document.getElementById('artwork').style.backgroundImage = 'url('+currentSong.images[0].versions[0].path+')';
+					document.getElementById('artwork').style.display = 'block';
+				} else {
+					document.getElementById('artwork').style.display = 'none';
+				}
+
+				x1.domain([d3.timeMinute.offset(now, -20), d3.timeMinute.offset(now, 10)]);
+
+				main.select("#tAxis").call(axis);
+				var ticks = d3.selectAll(".tick text");
+				ticks.attr("class", function(d, i) {
+					if (d.getMinutes() % 5 != 0) d3.select(this).remove();
+				});
+
+				//update the item labels
+				labels = itemRects.selectAll("foreignObject")
+					.data(visItems, function(d) {
+						return d.title;
+					})
+					.attr("x", function(d) {
+						return x1(Math.max(new Date(d.start), minExtent));
+					});
+
+				labels.enter().append("foreignObject")
+					.attr("x", function(d) {
+						return x1(Math.max(new Date(d.start), minExtent));
+					})
+					.attr("y", function(d) {
+						return y1(0) + 10;
+					})
+					.attr("width", function(d) {
+						return x1(new Date(d.end)) - x1(new Date(d.start));
+					})
+					.attr("height", function(d) {
+						return .8 * y1(1);
+					})
+					.attr("text-anchor", "start")
+					.append("xhtml:div")
+					.attr('class', 'itemDiv')
+					.append('xhtml:div')
+					.attr('class', 'itemText')
+					.html(function(d) {
+						return "<b>" + d.title + "</b><br>" + d.interpreter;
+					});
+
+				labels.exit().remove();
+
+			}
+		});
+		}
+
+		init();
+	</script>
+</body>
+
+</html>
