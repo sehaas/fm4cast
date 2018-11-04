@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>FM4cast</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="js/apikey.js" charset="utf-8"></script>
+
+		<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+		<link rel="manifest" href="/assets/site.webmanifest">
+		<link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#ffe501">
+		<link rel="shortcut icon" href="/assets/favicon.ico">
+		<meta name="msapplication-TileColor" content="#ffe501">
+		<meta name="msapplication-config" content="/assets/browserconfig.xml">
+		<meta name="theme-color" content="#ffe501">
+		<meta property="og:image" content="https://fm4cast.deebas.com/assets/og-image.jpg">
+		<meta property="og:image:height" content="355">
+		<meta property="og:image:width" content="679">
+		<meta property="og:title" content="FM4cast">
+		<meta property="og:description" content="Play Radio FM4 on your Cast device">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="https://fm4cast.deebas.com">
+		<meta itemprop="name" content="FM4cast" />
+		<meta itemprop="description" content="Play Radio FM4 on your Cast device" />
+		<meta itemprop="image" content="https://fm4cast.deebas.com/assets/og-image.jpg" />
+
+
+		<style media="screen">
+			google-cast-launcher {
+				--disconnected-color: #c1c1c1;
+				--connected-color: #ffe501;
+			}
+			.cast-button {
+				max-width: 100pt;
+				margin: 0 auto 40pt;
+			}
+
+			body {
+				background-color: #242424;
+				color: #c1c1c1;
+				margin: 0;
+				font-family: Verdana;
+			}
+
+			.main {
+
+			}
+			.yellow {
+				position:relative;
+				background-color: #ffe501;
+				height: 100pt;
+			}
+			.black {
+				position:relative;
+				padding-top: 80pt;
+			}
+			.text {
+				font-size: 60pt;
+				font-weight: bold;
+				transform: scale(1.4,1);
+				letter-spacing: -7pt;
+				right: 0px;
+				margin-right: 35pt;
+				position: absolute;
+			}
+			.fm4.text {
+				color: #242424;
+				bottom: 0px;
+			}
+			.cast.text {
+				color: #ffe501;
+				top: 0px;
+			}
+			.cast-info {
+				width: 75%;
+				margin: -30pt auto 50pt;
+				text-align: justify;
+				font-size: 10pt;
+			}
+			.contribute {
+				position: fixed;
+				bottom: 0;
+				right: 0;
+				font-size: 8pt;
+				margin: 8pt;
+				text-align: right;
+			}
+			.contribute a {
+				color: inherit;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="main">
+			<div class="yellow"><div class="fm4 text">FM4</div></div>
+			<div class="black">
+				<div class="cast text">cast</div>
+				<div class="cast-button">
+					<google-cast-launcher></google-cast-launcher>
+				</div>
+				<div class="cast-info">
+					<p>FM4cast funktioniert im <b>Chrome</b> unter Window, Linux, MacOS, Android und iOS.</p>
+					<p>Du musst dich im selben Netz wie das Cast-f&auml;hige Ger&auml;t befinden.</p>
+				</div>
+				<div class="contribute">
+					Anregungen, Fehlerberichte oder Weiterentwicklungen kannst du hier abliefern: <a target="_blank" href="https://github.com/sehaas/fm4cast">github.com/sehaas/fm4cast</a>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			window['__onGCastApiAvailable'] = function(isAvailable) {
+				if (isAvailable) {
+					initializeCastApi();
+				}
+			};
+			initializeCastApi = function() {
+				var context = cast.framework.CastContext.getInstance();
+				context.setOptions({
+					receiverApplicationId: fm4cast.castAppId,
+					autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
+					resumeSavedSession: true
+				});
+				context.addEventListener(
+					cast.framework.CastContextEventType.CAST_STATE_CHANGED,
+					function(event) {
+						switch(event.castState) {
+							case 'NO_DEVICES_AVAILABLE':
+								document.getElementsByClassName('cast-info')[0].style.display = 'block';
+							break;
+							case 'NOT_CONNECTED':
+								document.getElementsByClassName('cast-info')[0].style.display = 'none';
+							break;
+							case 'CONNECTING':
+							break;
+							case 'CONNECTED':
+							break;
+						}
+					}
+				)
+
+				var player = new cast.framework.RemotePlayer();
+				var playerController = new cast.framework.RemotePlayerController(player);
+				playerController.addEventListener(
+					cast.framework.RemotePlayerEventType.IS_CONNECTED_CHANGED, function() {
+						if (player.isConnected) {
+							initializeFM4LiveStream();
+						}
+					});
+
+			};
+
+			initializeFM4LiveStream = function() {
+				var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+				var mediaInfo = new chrome.cast.media.MediaInfo('https://fm4shoutcast.sf.apa.at/;','audio/mpeg');
+				var request = new chrome.cast.media.LoadRequest(mediaInfo);
+				castSession.loadMedia(request).then(
+					function() { console.log('Load succeed'); },
+					function(errorCode) { console.log('Error code: ' + errorCode); });
+			}
+		</script>
+
+
+		<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+	</body>
+</html>

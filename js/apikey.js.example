@@ -1,0 +1,16 @@
+/*
+ * FM4cast - FM4 ChromeCast receiver/sender
+ * http://github.com/sehaas/fm4cast
+ *
+ * Copyright 2013,2018 Sebastian Haas (sehaas@deebas.com)
+ * Released under the MIT license
+ *
+ */
+
+
+/*
+ * Register your Application ID here: https://cast.google.com/publish/
+ */
+const fm4cast = {
+	castAppId: 'XXXXXXXX'
+};
