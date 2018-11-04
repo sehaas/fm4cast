@@ -189,7 +189,7 @@
 		.itemDiv .artist {
 			top:50%;
 		}
-		.artworkOverlay {
+		#artworkOverlay {
 			background-color: rgba(0, 0, 0, 0.7);
 			height: 100%;
 			width: 100%;
@@ -214,7 +214,7 @@
 					<div id="showTitle"></div>
 				</div>
 				<div id="artwork" style="display:none;">
-					<div class="artworkOverlay">
+					<div id="artworkOverlay">
 						<div id="cSong"></div>
 						<div id="cArtist"></div>
 					</div>
@@ -364,6 +364,7 @@
 					artwork.style.display = 'block';
 					document.getElementById('cSong').innerText = currentSong.title;
 					document.getElementById('cArtist').innerText = currentSong.interpreter;
+					document.getElementById('artworkOverlay').style.display = currentSong.images[0].category == 'imgcov-fallback' ? 'block' : 'none';
 				} else {
 					artwork.style.display = 'none';
 				}
