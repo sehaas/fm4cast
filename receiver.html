@@ -258,7 +258,7 @@
 		}
 
 		function getTimeRange(date) {
-			return [d3.timeMinute.offset(date, -20), d3.timeMinute.offset(date, 10)];
+			return [d3.timeMinute.offset(date, -20), d3.timeMinute.offset(date, 5)];
 		}
 
 		function uniqueItem(value, index, self) {
@@ -274,6 +274,7 @@
 			var response = await fetch(getDataUrl());
 			json = await response.json();
 			var now = getNow();
+			items = [];
 			json.forEach(function(show) {
 				items = items.concat(show.items);
 				if (now > show.start && now < show.end) {
@@ -353,7 +354,7 @@
 					minExtent = x1.domain()[0].getTime(),
 					maxExtent = x1.domain()[1].getTime(),
 					visItems = items.filter(function(d) {
-						return  d.end > minExtent;
+						return (d.type == 'M' || d.type == 'N' || d.type == 'B' || d.type == null) && d.end > minExtent;
 					});
 				var currentSong = visItems.find(function(i) { return i.type == 'M' && i.start < now.getTime() && i.end > now.getTime(); });
 				items = visItems;
@@ -383,12 +384,15 @@
 						return d.title;
 					})
 					.attr("x", function(d) {
-						return x1(Math.max(new Date(d.start), minExtent));
+						return x1(new Date(d.start));
+					})
+					.attr('class',(d) => {
+						return d.state === 'P' && d.end > now.getTime() ? 'active' : '';
 					});
 
 				labels.enter().append("foreignObject")
 					.attr("x", function(d) {
-						return x1(Math.max(new Date(d.start), minExtent));
+						return x1(new Date(d.start));
 					})
 					.attr("y", function(d) {
 						return h / 5;
@@ -400,6 +404,9 @@
 						return h * 0.7;
 					})
 					.attr("text-anchor", "start")
+					.attr('class',(d) => {
+						return d.state === 'P' && d.end > now.getTime() ? 'active' : '';
+					})
 					.append("xhtml:div")
 						.attr('class','itemDiv')
 						.html(function(d) {
