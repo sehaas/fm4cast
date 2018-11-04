@@ -1,0 +1,20 @@
+{
+    "name": "",
+    "short_name": "",
+    "icons": [
+        {
+            "src": "/assets/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#ffe501",
+    "background_color": "#ffe501",
+    "start_url": "https://fm4cast.deebas.com/",
+    "display": "standalone"
+}
