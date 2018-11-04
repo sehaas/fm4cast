@@ -31,7 +31,8 @@
 			display: table;
 			background: #c1c1c1;
 			outline: solid 0.2vw #ffe501;
-			font-size: 1.1vw;
+			font-size: 1.5vw;
+			position: relative;
 		}
 
 		.itemText {
@@ -192,6 +193,12 @@
 			background-color: rgba(0, 0, 0, 0.7);
 			height: 100%;
 			width: 100%;
+		}
+
+		foreignObject.active .itemDiv {
+			background-color: #414141;
+			color: #ffe501;
+			z-index: 99;
 		}
 	</style>
 </head>
@@ -393,10 +400,11 @@
 					})
 					.attr("text-anchor", "start")
 					.append("xhtml:div")
-					.attr('class', 'itemDiv')
-					.html(function(d) {
-						return "<div class='song'>" + (d.title || '') + "</div><div class='artist'>" + (d.interpreter || '') + "</div>";
-					});
+						.attr('class','itemDiv')
+						.html(function(d) {
+							return "<div class='song'>" +(d.title || '') + "</div>" +
+								"<div class='artist'>" + (d.interpreter || d.subtitle || '') + "</div>";
+						});
 
 				labels.exit().remove();
 			}
@@ -427,7 +435,6 @@
 
 		const options = new cast.framework.CastReceiverOptions();
 		context.start(options);
-
 	</script>
 </body>
 
