@@ -84,11 +84,32 @@
 				bottom: 0;
 				right: 0;
 				font-size: 8pt;
-				margin: 8pt;
+				padding: 8pt;
 				text-align: right;
+				background-color: #242424;
 			}
 			.contribute a {
 				color: inherit;
+			}
+
+			.debugLog {
+				padding-bottom: 50pt;
+			}
+
+			.debugLog > div > * {
+				margin-left: 2pt;
+			}
+
+			.debugLog > div > div {
+				display: inline-block;
+			}
+
+			.debugLog > div > span {
+				font-weight: bold;
+			}
+
+			.debugLog {
+				font-size: 8pt;
 			}
 		</style>
 	</head>
@@ -105,6 +126,7 @@
 					<p>FM4cast funktioniert im <b>Chrome</b> unter Window, Linux, MacOS, Android und iOS.</p>
 					<p>Du musst dich im selben Netz wie das Cast-f&auml;hige Ger&auml;t befinden.</p>
 				</div>
+				<div class="debugLog"></div>
 				<div class="contribute">
 					Anregungen, Fehlerberichte oder Weiterentwicklungen kannst du hier abliefern: <a target="_blank" href="https://github.com/sehaas/fm4cast">github.com/sehaas/fm4cast</a>
 				</div>
@@ -112,7 +134,19 @@
 		</div>
 
 		<script>
+			window['fm4castDebug'] = !/debug/.test(window.location.search) ?
+				() => {} : (callback, message) => {
+					var logDiv = document.createElement('div');
+					logDiv.innerHTML = '<span>' + new Date().toISOString() + '</span>' +
+						'<div>' + callback + '</div>' +
+						'<div>' + message + '</div>';
+					document.getElementsByClassName('debugLog')[0].prepend(logDiv);
+					fetch('/debug/' + encodeURIComponent(callback) +
+						'/' + encodeURIComponent(message));
+				};
+
 			window['__onGCastApiAvailable'] = function(isAvailable) {
+				fm4castDebug('GCastApiAvailable', isAvailable);
 				if (isAvailable) {
 					initializeCastApi();
 				}
@@ -127,6 +161,7 @@
 				context.addEventListener(
 					cast.framework.CastContextEventType.CAST_STATE_CHANGED,
 					function(event) {
+						fm4castDebug(event.type, event.castState);
 						switch(event.castState) {
 							case 'NO_DEVICES_AVAILABLE':
 								document.getElementsByClassName('cast-info')[0].style.display = 'block';
@@ -145,7 +180,8 @@
 				var player = new cast.framework.RemotePlayer();
 				var playerController = new cast.framework.RemotePlayerController(player);
 				playerController.addEventListener(
-					cast.framework.RemotePlayerEventType.IS_CONNECTED_CHANGED, function() {
+					cast.framework.RemotePlayerEventType.IS_CONNECTED_CHANGED, function(event) {
+						fm4castDebug(event.field, event.value);
 						if (player.isConnected) {
 							initializeFM4LiveStream();
 						}
@@ -158,8 +194,8 @@
 				var mediaInfo = new chrome.cast.media.MediaInfo('https://fm4shoutcast.sf.apa.at/;','audio/mpeg');
 				var request = new chrome.cast.media.LoadRequest(mediaInfo);
 				castSession.loadMedia(request).then(
-					function() { console.log('Load succeed'); },
-					function(errorCode) { console.log('Error code: ' + errorCode); });
+					function() { fm4castDebug('session.loadMedia', 'success'); },
+					function(errorCode) { fm4castDebug('session.loadMedia', errorCode); });
 			}
 		</script>
 
