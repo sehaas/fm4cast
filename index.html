@@ -134,6 +134,9 @@
 		</div>
 
 		<script>
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/service-worker.js');
+			}
 			window['fm4castDebug'] = !/debug/.test(window.location.search) ?
 				() => {} : (callback, message) => {
 					var logDiv = document.createElement('div');
