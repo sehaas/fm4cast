@@ -2,6 +2,9 @@
 
 This Chrome app allows you to stream FM4 media to your chromecast.
 
+**Update [08.10.2019]**
+Convert sender to PWA
+
 **Update [04.11.2018]**
 Published first public accessible version.
 
