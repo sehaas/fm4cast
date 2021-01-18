@@ -194,7 +194,7 @@
 
 			initializeFM4LiveStream = function() {
 				var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-				var mediaInfo = new chrome.cast.media.MediaInfo('https://fm4shoutcast.sf.apa.at/;','audio/mpeg');
+				var mediaInfo = new chrome.cast.media.MediaInfo('https://orf-live.ors-shoutcast.at/fm4-q1a','audio/mpeg');
 				var request = new chrome.cast.media.LoadRequest(mediaInfo);
 				castSession.loadMedia(request).then(
 					function() { fm4castDebug('session.loadMedia', 'success'); },
